@@ -7,16 +7,23 @@ provider "oci" {
     region = var.region
 }
 
+data "oci_objectstorage_namespace" "bucket_namespace" {
+    compartment_id = var.compartment_ocid
+}
+
 resource "oci_objectstorage_bucket" "create_bucket" {
     # required
     compartment_id = var.compartment_ocid
     name = "my_new_bucket"
-    namespace = var.bucket_namespace
+    namespace =  data.oci_objectstorage_namespace.bucket_namespace.namespace
 
     # optional
     access_type = "NoPublicAccess"
 }
 
+output "bucket_namespace" {
+    value = data.oci_objectstorage_namespace.bucket_namespace.namespace
+}
 
 output "new_bucket" {
     value = oci_objectstorage_bucket.create_bucket
