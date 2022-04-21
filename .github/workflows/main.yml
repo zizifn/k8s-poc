@@ -26,7 +26,7 @@ jobs:
 
       - name: 'Init Terraform'
         id: init
-        run: terraform init
+        run: terraform -chdir=oci-infra init
 
       - name: 'Validate Terraform'
         id: validate
