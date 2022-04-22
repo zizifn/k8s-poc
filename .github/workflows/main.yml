@@ -47,7 +47,7 @@ jobs:
       - name: "Terraform destroy Plan"
         id: destroy-plan
         if: ${{  github.event.inputs.actions == 'destroy'}}
-        run: terraform plan -destroy -target=module.${{  github.event.inputs.module }}
+        run: terraform plan -destroy -target=module.${{  github.event.inputs.module }} -out result
         continue-on-error: false
       - name: "Terraform Apply"
         id: apply
