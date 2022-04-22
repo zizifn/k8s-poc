@@ -1,4 +1,15 @@
 terraform {
+
+  cloud {
+    organization = "zizifn"
+    hostname     = "app.terraform.io" # Optional; defaults to app.terraform.io
+
+    workspaces {
+      name = "oci-poc"
+      # tags = ["networking", "source:cli"]
+    }
+  }
+
   required_providers {
     oci = {
       source  = "hashicorp/oci"
@@ -16,7 +27,7 @@ provider "oci" {
 }
 
 module "oci-infra" {
-  source = "./modules/oci-infra"
+  source           = "./modules/oci-infra"
   compartment_ocid = var.compartment_ocid
 
   # tags = {
