@@ -39,11 +39,15 @@ jobs:
         id: validate
         run: terraform validate
 
+      - name: "Terraform Plan"
+        id: plan
+        run: terraform plan -target=module.${{  github.event.inputs.module }} -out result
+        continue-on-error: false
+      - name: "Terraform destroy Plan"
+        id: destroy plan
+        if: ${{  github.event.inputs.actions == 'destroy'}}
+        run: terraform plan -target=module.${{  github.event.inputs.module }}
+        continue-on-error: false
       - name: "Terraform Apply"
         id: apply
-        if: ${{  github.event.inputs.actions == 'apply'}}
-        run: terraform apply -target=module.${{  github.event.inputs.module }} -auto-approve
-      - name: "Terraform destroy"
-        id: destroy
-        if: ${{  github.event.inputs.actions == 'destroy'}}
-        run: terraform destroy -target=module.${{  github.event.inputs.module }} -auto-approve
+        run: terraform apply result
