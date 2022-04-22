@@ -1,6 +1,7 @@
 terraform {
 
   cloud {
+    # 用来同步 terraform state 到cloud 上。
     organization = "zizifn"
     hostname     = "app.terraform.io" # Optional; defaults to app.terraform.io
 
@@ -12,7 +13,7 @@ terraform {
 
   required_providers {
     oci = {
-      source  = "hashicorp/oci"
+      source  = "oracle/oci"
       version = "~> 4.72.0"
     }
   }
