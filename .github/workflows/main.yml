@@ -6,6 +6,10 @@ on:
         description: "action: apply/destroy"
         default: "apply"
         required: true
+      module:
+        description: "module name"
+        default: "oci-infra"
+        required: true
 jobs:
   oci-infra-demo:
     name: Build With Terraform
@@ -26,22 +30,22 @@ jobs:
 
       - name: 'Init Terraform'
         id: init
-        run: terraform -chdir=oci-infra init
+        run: terraform init
 
       - name: 'Validate Terraform'
         id: validate
-        run: terraform -chdir=oci-infra validate
+        run: terraform validate
 
       - name: 'Terraform Plan'
         id: plan
-        run: terraform -chdir=oci-infra plan
+        run: terraform plan -target=module.${{{  github.event.inputs.module }}}
         continue-on-error: false
 
       - name: 'Terraform Apply'
         id: apply
-        if: ${{ env.actions == 'apply'}}
-        run: terraform -chdir=oci-infra apply -auto-approve
+        if: ${{  github.event.inputs.actions == 'apply'}}
+        run: terraform apply -auto-approve
       - name: 'Terraform destroy'
         id: destroy
-        if: ${{ env.actions == 'destroy'}}
-        run: terraform -chdir=oci-infra destroy -auto-approve
+        if: ${{  github.event.inputs.actions == 'destroy'}}
+        run: terraform destroy -auto-approve
