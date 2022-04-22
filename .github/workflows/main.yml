@@ -39,11 +39,6 @@ jobs:
         id: validate
         run: terraform validate
 
-      - name: "Terraform Plan"
-        id: plan
-        run: terraform plan -target=module.${{  github.event.inputs.module }}
-        continue-on-error: false
-
       - name: "Terraform Apply"
         id: apply
         if: ${{  github.event.inputs.actions == 'apply'}}
