@@ -47,8 +47,8 @@ jobs:
       - name: "Terraform Apply"
         id: apply
         if: ${{  github.event.inputs.actions == 'apply'}}
-        run: terraform apply -auto-approve
+        run: terraform apply -target=module.${{  github.event.inputs.module }} -auto-approve
       - name: "Terraform destroy"
         id: destroy
         if: ${{  github.event.inputs.actions == 'destroy'}}
-        run: terraform destroy -auto-approve
+        run: terraform destroy -target=module.${{  github.event.inputs.module }} -auto-approve
