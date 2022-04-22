@@ -27,25 +27,28 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: hashicorp/setup-terraform@v1
-
-      - name: 'Init Terraform'
+      - name: "echo input"
+        run: |
+          echo "actions: ${{github.event.inputs.actions}}"
+          echo "module: ${{github.event.inputs.module}}"
+      - name: "Init Terraform"
         id: init
         run: terraform init
 
-      - name: 'Validate Terraform'
+      - name: "Validate Terraform"
         id: validate
         run: terraform validate
 
-      - name: 'Terraform Plan'
+      - name: "Terraform Plan"
         id: plan
-        run: terraform plan -target=module.${{{  github.event.inputs.module }}}
+        run: terraform plan -target=module.${{  github.event.inputs.module }}
         continue-on-error: false
 
-      - name: 'Terraform Apply'
+      - name: "Terraform Apply"
         id: apply
         if: ${{  github.event.inputs.actions == 'apply'}}
         run: terraform apply -auto-approve
-      - name: 'Terraform destroy'
+      - name: "Terraform destroy"
         id: destroy
         if: ${{  github.event.inputs.actions == 'destroy'}}
         run: terraform destroy -auto-approve
