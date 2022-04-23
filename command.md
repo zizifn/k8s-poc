@@ -6,7 +6,6 @@ kubectl port-forward mongo-75f59d57f4-4nd6q 28015(localhost):27017(pod port)
 kubectl port-forward svc/mongo-svc 28015(localhost):27017(service port)
 ```
 
-
 ## terraform
 1. terraform apply -target="module.oci-infra"
 

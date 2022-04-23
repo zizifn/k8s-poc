@@ -23,3 +23,6 @@ https://www.terraform.io/cli/cloud
     }
   }
 ```
+
+#### Command
+1. terraform state rm [options] ADDRESS...
