@@ -26,14 +26,39 @@ provider "oci" {
   fingerprint  = var.fingerprint
   region       = var.region
 }
+# module "tags" {
+#   source           = "./modules/tags"
+#   compartment_id = var.compartment_ocid
+# }
 
-module "oci-infra" {
-  source           = "./modules/oci-infra"
-  compartment_ocid = var.compartment_ocid
-
-  # tags = {
-  #   Terraform   = "true"
-  #   Environment = "dev"
-  # }
+module "k8s-vcn-infra" {
+  source           = "./modules/k8s-vcn-infra"
+  compartment_id = var.compartment_ocid
+  region           = var.region
 }
 
+module "k8s-cluster" {
+  source           = "./modules/k8s-cluster"
+  compartment_id = var.compartment_ocid
+  vcn_id= module.k8s-vcn-infra.vcn_id
+}
+
+
+# data "oci_core_service_gateways" "test_service_gateways" {
+#     #Required
+#     compartment_id = var.compartment_ocid
+
+# }
+# data "oci_identity_availability_domains" "ads" {
+#   compartment_id = var.compartment_ocid
+# }
+
+# output "nat_route_id" {
+#     value = data.oci_core_service_gateways.test_service_gateways
+# }
+
+
+moved {
+  from = module.k8s-vcn2-infra
+  to   = module.k8s-vcn-infra
+}
