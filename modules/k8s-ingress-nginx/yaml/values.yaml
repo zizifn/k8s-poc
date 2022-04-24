@@ -1,0 +1,11 @@
+controller:
+  service:
+      annotations:
+        # Create internal LB
+        # service.beta.kubernetes.io/oci-load-balancer-internal: "true"
+        # Any other annotation can be declared here.
+        oci.oraclecloud.com/load-balancer-type: "lb"
+        service.beta.kubernetes.io/oci-load-balancer-shape: "flexible"
+        service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "10"
+        service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "10"
+      loadBalancerIP: ""

@@ -11,13 +11,25 @@ data "oci_core_subnets" "k8s_subnets" {
   #Optional
   vcn_id = var.vcn_id
 }
+data "oci_core_images" "test_images" {
+  #Required
+  compartment_id = var.compartment_id
 
+  operating_system         = "Oracle Linux"
+  operating_system_version = "8"
+}
 
 locals {
   kubernetes_version = "v1.22.5"
   vcn_public_subnet  = [for subnet in data.oci_core_subnets.k8s_subnets.subnets : subnet if length(regexall(".*public.*", subnet.display_name)) > 0]
   vcn_private_subnet = [for subnet in data.oci_core_subnets.k8s_subnets.subnets : subnet if length(regexall(".*private.*", subnet.display_name)) > 0]
-
+  os = var.is_arm ? {
+    image : [for image in data.oci_core_images.test_images.images : image if length(regexall("(?i).*aarch64.*", image.display_name)) > 0],
+    shape : "VM.Standard.E3.Flex"
+    } : {
+    image : [for image in data.oci_core_images.test_images.images : image if length(regexall("(?i).*aarch64|GPU.*", image.display_name)) < 1]
+    shape : "VM.Standard.E3.Flex"
+  }
 }
 
 output "test" {
@@ -45,6 +57,9 @@ resource "oci_containerengine_cluster" "k8s_cluster" {
       pods_cidr     = "10.244.0.0/16"
       services_cidr = "10.96.0.0/16"
     }
+    service_lb_config {
+      freeform_tags = { "services" : "k8s-lb" }
+    }
     service_lb_subnet_ids = local.vcn_public_subnet[*].id
   }
 }
@@ -67,10 +82,10 @@ resource "oci_containerengine_node_pool" "k8s_node_pool" {
     #   availability_domain = data.oci_identity_availability_domains.ads.availability_domains[0].name
     #   subnet_id           = local.vcn_private_subnet[0].id
     # }
-    size         = 2
-    defined_tags = { "operation.Cost" = "k8s" }
+    size = 2
+    # defined_tags = { "operation.Cost" = "k8s" }
   }
-  node_shape = "VM.Standard.E3.Flex"
+  node_shape = local.os.shape
 
   node_shape_config {
     memory_in_gbs = 16
@@ -78,7 +93,7 @@ resource "oci_containerengine_node_pool" "k8s_node_pool" {
   }
 
   node_source_details {
-    image_id    = "ocid1.image.oc1.ap-chuncheon-1.aaaaaaaazuiu6ap7pgeizjf2egwz4wde7lounvjgq5aayolwmeauanbqkv6q"
+    image_id    = local.os.image[0].id
     source_type = "image"
   }
 

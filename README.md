@@ -28,3 +28,22 @@ https://www.terraform.io/cli/cloud
 1. terraform state rm [options] ADDRESS...
 2. https://www.terraform.io/cli/state/move
 3. https://learn.hashicorp.com/tutorials/terraform/move-config
+
+## Kubernetes 
+
+### Kubernetes Dashboard
+
+``` bash
+kubectl -n kube-system get secret
+
+kubectl -n kube-system describe secret kubernetes-dashboard-token-*
+
+kubectl proxy
+```
+
+http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login
+
+### Add Ingress Controller
+
+https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengsettingupingresscontroller.htm
+https://kubernetes.github.io/ingress-nginx/deploy/#oracle-cloud-infrastructure
