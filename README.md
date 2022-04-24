@@ -1,6 +1,15 @@
 # oci-poc
 设置 oracle cloud 
 
+## GITHUB Action token
+
+### 保存文件不能有多行
+
+``` shell
+cat test | base64   -w 0 
+echo "${{secrets.OCI_K8S_CONFIG}}" | base64 -d >> ~/.kube/config
+```
+
 ## Setup Terraform
 
 ### Install Terraform

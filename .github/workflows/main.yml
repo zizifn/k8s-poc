@@ -36,7 +36,7 @@ jobs:
           echo "module: ${{github.event.inputs.module}}"
       - name: "set k8s KUBE_CONFIG_PATH path token"
         run: |
-            echo "${{secrets.OCI_K8S_CONFIG}}" | base64 -d >> ~/.kube/config
+            echo "${{secrets.OCI_K8S_CONFIG}}" | base64 --decode > ~/.kube/config
       - name: "Init Terraform"
         id: init
         run: terraform init
