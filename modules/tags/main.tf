@@ -1,4 +1,13 @@
 
+terraform {
+  required_providers {
+    oci = {
+      source  = "oracle/oci"
+      version = "~> 4.72.0"
+    }
+  }
+}
+
 locals {
   tag_namespaces = {
     "k8s-operations" : {
@@ -25,7 +34,7 @@ locals {
       for tag in namespace.tags : {
         name : tag.name,
         tag_description : tag.tag_description,
-        tag_is_cost_tracking: tag.tag_is_cost_tracking,
+        tag_is_cost_tracking : tag.tag_is_cost_tracking,
         namespace : namespace_name
       }
     ]
