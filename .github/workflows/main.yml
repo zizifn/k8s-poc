@@ -23,7 +23,7 @@ jobs:
       TF_VAR_fingerprint: ${{secrets.OCI_FINGERPRINT}}
       TF_VAR_region: ${{secrets.OCI_REGION}}
       TF_VAR_ingrss_nginx_lb_ip: ${{secrets.OCI_K8S_INGRSS_NGINX_LB_IP}}
-      OCI_K8S_CONFIG: secrets.OCI_K8S_CONFIG
+      OCI_K8S_CONFIG: ${{secrets.OCI_K8S_CONFIG}}
 
     steps:
       - uses: actions/checkout@v2
