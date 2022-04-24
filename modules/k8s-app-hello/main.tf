@@ -44,13 +44,6 @@ resource "kubernetes_deployment_v1" "docker_hello_world" {
 resource "kubernetes_service_v1" "docker_hello_world_svc" {
   metadata {
     name = "docker-hello-world-svc"
-
-    # annotations = {
-    #   "oci.oraclecloud.com/load-balancer-type"                      = "lb"
-    #   "service.beta.kubernetes.io/oci-load-balancer-shape"          = "flexible"
-    #   "service.beta.kubernetes.io/oci-load-balancer-shape-flex-max" = "10"
-    #   "service.beta.kubernetes.io/oci-load-balancer-shape-flex-min" = "10"
-    # }
   }
 
   spec {
