@@ -1,5 +1,6 @@
 terraform {
 
+  #terraform cloud
   cloud {
     # 用来同步 terraform state 到cloud 上。
     organization = "zizifn"
@@ -16,6 +17,15 @@ terraform {
       source  = "oracle/oci"
       version = "~> 4.72.0"
     }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = ">= 2.10.0"
+    }
+
+    helm = {
+      source  = "hashicorp/helm"
+      version = ">= 2.5.1"
+    }
   }
 }
 # cau be use this no need .oci/config
@@ -26,39 +36,47 @@ provider "oci" {
   fingerprint  = var.fingerprint
   region       = var.region
 }
-# module "tags" {
-#   source           = "./modules/tags"
-#   compartment_id = var.compartment_ocid
-# }
+
+module "tags" {
+  source         = "./modules/tags"
+  compartment_id = var.compartment_ocid
+
+}
 
 module "k8s-vcn-infra" {
-  source           = "./modules/k8s-vcn-infra"
+  source         = "./modules/k8s-vcn-infra"
   compartment_id = var.compartment_ocid
-  region           = var.region
+  region         = var.region
+  depends_on = [
+    module.tags
+  ]
 }
 
 module "k8s-cluster" {
-  source           = "./modules/k8s-cluster"
+  source         = "./modules/k8s-cluster"
   compartment_id = var.compartment_ocid
-  vcn_id= module.k8s-vcn-infra.vcn_id
+  vcn_id         = module.k8s-vcn-infra.vcn_id
+  is_arm         = false
+  depends_on = [
+    module.k8s-vcn-infra
+  ]
 }
 
+module "k8s-ingress-nginx" {
+  source             = "./modules/k8s-ingress-nginx"
+  ingrss_nginx_lb_ip = var.ingrss_nginx_lb_ip
+}
 
-# data "oci_core_service_gateways" "test_service_gateways" {
-#     #Required
-#     compartment_id = var.compartment_ocid
+module "k8s-app-hello" {
+  source = "./modules/k8s-app-hello"
+}
 
-# }
-# data "oci_identity_availability_domains" "ads" {
-#   compartment_id = var.compartment_ocid
-# }
+output "echo" {
+  value = 1
+}
 
-# output "nat_route_id" {
-#     value = data.oci_core_service_gateways.test_service_gateways
-# }
-
-
+# move history
 moved {
-  from = module.k8s-vcn2-infra
-  to   = module.k8s-vcn-infra
+  from = module.k8s-ingress-nginx.helm_release.example
+  to   = module.k8s-ingress-nginx.helm_release.ingress-nginx
 }

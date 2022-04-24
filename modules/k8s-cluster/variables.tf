@@ -9,3 +9,9 @@ variable "vcn_id" {
   description = "vcn_id"
 }
 
+variable "is_arm" {
+  type        = bool
+  description = "arm"
+  default = true
+}
+

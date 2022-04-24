@@ -33,6 +33,7 @@ resource "oci_core_security_list" "private_k8s_subnet_sl" {
     destination_type = "CIDR_BLOCK"
     protocol         = "all"
   }
+
   # allow traffic coming with VCN,可以更具体点，分成 worker和Kubernetes，这里为了简化，在VCN 里面允许相互连接。
   ingress_security_rules {
     stateless   = false
@@ -102,7 +103,7 @@ resource "oci_core_route_table" "k8s_private_subnet_route_table" {
   vcn_id         = module.vcn.vcn_id
 
   #Optional
-  defined_tags = { "operation.Cost" = "k8s" }
+  defined_tags = { "k8s-operations.Cost" = "k8s" }
   display_name = "k8s_private_subnet_route_table"
   # freeform_tags = {"Department"= "Finance"}
   route_rules {
@@ -129,7 +130,7 @@ resource "oci_core_route_table" "k8s_public_subnet_route_table" {
   vcn_id         = module.vcn.vcn_id
 
   #Optional
-  defined_tags = { "operation.Cost" = "k8s" }
+  defined_tags = { "k8s-operations.Cost" = "k8s" }
   display_name = "k8s_public_subnet_route_table"
   # freeform_tags = {"Department"= "Finance"}
   route_rules {

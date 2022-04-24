@@ -1,8 +1,8 @@
 
 locals {
   tag_namespaces = {
-    operation : {
-      tag_namespace_description : "Operations test1 and test111",
+    "k8s-operations" : {
+      tag_namespace_description : "k8s Operations test1 and test111",
       tags : [{
         name : "Cost",
         tag_description : "cost"

@@ -8,6 +8,10 @@ variable "compartment_ocid" {
   description = "The compartment to create the resources in"
 }
 
+variable "ingrss_nginx_lb_ip" {
+  type        = string
+  description = "ingrss_nginx_lb_ip"
+}
 
 # login variable
 variable "tenancy_ocid" {
