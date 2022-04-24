@@ -31,7 +31,7 @@ jobs:
         run: |
             mkdir -p ~/.kube
             echo "${{ secrets.OCI_K8S_CONFIG }}" > ~/.kube/config
-      - name: 'Write Config & Key Files'
+      - name: 'Write OCI Config & Key Files'
         run: |
           mkdir ~/.oci
           echo "[DEFAULT]" >> ~/.oci/config
