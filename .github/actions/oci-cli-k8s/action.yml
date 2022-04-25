@@ -1,0 +1,64 @@
+name: "oci cli and k8s"
+description: "set up oci cli and k8s"
+inputs:
+  k8s_config: # id of input
+    description: "k8s config"
+    required: true
+  user:
+    description: "oci user ocid"
+    required: true
+  pass_phrase:
+    description: "OCI_PASSPHRASE"
+    required: false
+  fingerprint:
+    description: "OCI_FINGERPRINT"
+    required: true
+  region:
+    description: "OCI_REGION"
+    required: true
+  tenancy:
+    description: "tenancy"
+    required: true
+  key_file:
+    description: "key_file"
+    required: true
+outputs:
+  random-number:
+    description: "Random number"
+    value: "test111"
+runs:
+  using: "composite"
+  steps:
+    - name: "set k8s KUBE_CONFIG_PATH path token"
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ inputs.k8s_config }}" > ~/.kube/config
+      shell: bash
+    - name: "Write OCI Config & Key Files"
+      run: |
+        mkdir ~/.oci
+        echo "[DEFAULT]" >> ~/.oci/config
+        echo "user=${{inputs.user}}" >> ~/.oci/config
+        echo "fingerprint=${{inputs.fingerprint}}" >> ~/.oci/config
+        echo "pass_phrase=${{inputs.pass_phrase}}" >> ~/.oci/config
+        echo "region=${{inputs.region}}" >> ~/.oci/config
+        echo "tenancy=${{inputs.tenancy}}" >> ~/.oci/config
+        echo "key_file=~/.oci/key.pem" >> ~/.oci/config
+        echo "${{inputs.key_file}}" >> ~/.oci/key.pem
+      shell: bash
+
+    - name: "Install OCI CLI"
+      run: |
+        curl -L -O https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh
+        chmod +x install.sh
+        ./install.sh --accept-all-defaults
+        echo "/home/runner/bin" >> $GITHUB_PATH
+        exec -l $SHELL
+      shell: bash
+
+    - name: "Fix OCI Config File Permissions"
+      run: |
+        oci setup repair-file-permissions --file /home/runner/.oci/config
+        oci setup repair-file-permissions --file /home/runner/.oci/key.pem
+      shell: bash
+

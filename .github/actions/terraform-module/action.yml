@@ -1,0 +1,52 @@
+name: "terraform-module"
+description: "terraform-module"
+inputs:
+  TERRAFORM_CLOUD_API_TOKEN:
+    description: "TERRAFORM_CLOUD_API_TOKEN"
+    required: true
+  TURN_SETUP_TERRAFORM:
+    description: "SKIP_SETUP_TERRAFORM"
+    required: false
+    default: "off"
+  TERRAFORM_ACTIONS:
+    description: "TERRAFORM_ACTIONS apply or destroy"
+    required: true
+  TERRAFORM_MODULE:
+    description: "TERRAFORM_MODULE name"
+    required: true
+
+outputs:
+  random-number:
+    description: "Random number"
+    value: "test111"
+runs:
+  using: "composite"
+  steps:
+    - uses: hashicorp/setup-terraform@v1
+      if: ${{ inputs.SKIP_SETUP_TERRAFORM == 'ON'}}
+      with:
+        cli_config_credentials_token: ${{ inputs.TERRAFORM_CLOUD_API_TOKEN }}
+    - name: "Init Terraform"
+      id: init
+      run: terraform init
+      shell: bash
+
+    - name: "Validate Terraform"
+      id: validate
+      run: terraform validate
+      shell: bash
+
+    - name: "Terraform Plan"
+      id: plan
+      if: ${{ inputs.TERRAFORM_ACTIONS == 'apply'}}
+      run: terraform plan -target=module.${{  inputs.TERRAFORM_MODULE }} -out result
+      shell: bash
+    - name: "Terraform destroy Plan"
+      id: destroy-plan
+      if: ${{  github.event.inputs.actions == 'destroy'}}
+      run: terraform plan -destroy -target=module.${{  inputs.TERRAFORM_MODULE }} -out result
+      shell: bash
+    - name: "Terraform Apply"
+      id: apply
+      run: terraform apply result
+      shell: bash

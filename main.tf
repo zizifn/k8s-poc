@@ -37,6 +37,17 @@ provider "oci" {
   region       = var.region
 }
 
+provider "helm" {
+  kubernetes {
+    config_path    = "~/.kube/config"
+  }
+}
+
+provider "kubernetes" {
+  config_path    = "~/.kube/config"
+}
+
+
 module "tags" {
   source         = "./modules/tags"
   compartment_id = var.compartment_ocid
@@ -65,14 +76,28 @@ module "k8s-cluster" {
 module "k8s-ingress-nginx" {
   source             = "./modules/k8s-ingress-nginx"
   ingrss_nginx_lb_ip = var.ingrss_nginx_lb_ip
+  depends_on = [
+    module.k8s-cluster
+  ]
 }
 
 module "k8s-app-hello" {
   source = "./modules/k8s-app-hello"
+  depends_on = [
+    module.k8s-ingress-nginx
+  ]
 }
 
-output "echo" {
-  value = 1
+module "k8s-echo-test" {
+  source = "./modules/k8s-echo-test"
+  compartment_id = var.compartment_ocid
+}
+
+output "echo_k8s" {
+  value = module.k8s-echo-test.echo_k8s
+}
+output "echo_k8s_app" {
+  value = module.k8s-echo-test.echo_k8s_app
 }
 
 # move history

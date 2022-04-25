@@ -28,59 +28,26 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: "set k8s KUBE_CONFIG_PATH path token"
-        run: |
-            mkdir -p ~/.kube
-            echo "${{ secrets.OCI_K8S_CONFIG }}" > ~/.kube/config
-      - name: 'Write OCI Config & Key Files'
-        run: |
-          mkdir ~/.oci
-          echo "[DEFAULT]" >> ~/.oci/config
-          echo "user=${{secrets.OCI_USER_OCID}}" >> ~/.oci/config
-          echo "fingerprint=${{secrets.OCI_FINGERPRINT}}" >> ~/.oci/config
-          echo "pass_phrase=${{secrets.OCI_PASSPHRASE}}" >> ~/.oci/config
-          echo "region=${{secrets.OCI_REGION}}" >> ~/.oci/config
-          echo "tenancy=${{secrets.OCI_TENANCY_OCID}}" >> ~/.oci/config
-          echo "key_file=~/.oci/key.pem" >> ~/.oci/config
-          echo "${{secrets.OCI_KEY_FILE}}" >> ~/.oci/key.pem
-
-      - name: 'Install OCI CLI'
-        run: |
-          curl -L -O https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh
-          chmod +x install.sh
-          ./install.sh --accept-all-defaults
-          echo "/home/runner/bin" >> $GITHUB_PATH
-          exec -l $SHELL
-
-      - name: 'Fix OCI Config File Permissions'
-        run: |
-          oci setup repair-file-permissions --file /home/runner/.oci/config
-          oci setup repair-file-permissions --file /home/runner/.oci/key.pem
-      - uses: hashicorp/setup-terraform@v1
+        id: oci_cli_k8s
+        uses: ./.github/actions/oci-cli-k8s
         with:
-          cli_config_credentials_token: ${{ secrets.TERRAFORM_CLOUD_API_TOKEN }}
+          k8s_config: ${{secrets.OCI_K8S_CONFIG}}
+          user: ${{secrets.OCI_USER_OCID}}
+          fingerprint: ${{secrets.OCI_FINGERPRINT}}
+          region: ${{secrets.OCI_REGION}}
+          tenancy: ${{secrets.OCI_TENANCY_OCID}}
+          key_file: ${{secrets.OCI_KEY_FILE}}
+          pass_phrase: ${{secrets.OCI_PASSPHRASE}}
       - name: "echo input"
         run: |
           echo "actions: ${{github.event.inputs.actions}}"
           echo "module: ${{github.event.inputs.module}}"
 
-      - name: "Init Terraform"
-        id: init
-        run: terraform init
-
-      - name: "Validate Terraform"
-        id: validate
-        run: terraform validate
-
-      - name: "Terraform Plan"
-        id: plan
-        if: ${{  github.event.inputs.actions == 'apply'}}
-        run: terraform plan -target=module.${{  github.event.inputs.module }} -out result
-        continue-on-error: false
-      - name: "Terraform destroy Plan"
-        id: destroy-plan
-        if: ${{  github.event.inputs.actions == 'destroy'}}
-        run: terraform plan -destroy -target=module.${{  github.event.inputs.module }} -out result
-        continue-on-error: false
-      - name: "Terraform Apply"
-        id: apply
-        run: terraform apply result
+      - name: "Terraform module"
+        id: terraform_module
+        uses: ./.github/actions/terraform-module
+        with:
+          TERRAFORM_CLOUD_API_TOKEN: ${{secrets.TERRAFORM_CLOUD_API_TOKEN}}
+          TURN_SETUP_TERRAFORM: 'ON'
+          TERRAFORM_ACTIONS: ${{github.event.inputs.actions}}
+          TERRAFORM_MODULE: ${{{github.event.inputs.module}}
