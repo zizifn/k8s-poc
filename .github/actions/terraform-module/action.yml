@@ -23,7 +23,7 @@ runs:
   using: "composite"
   steps:
     - uses: hashicorp/setup-terraform@v1
-      if: ${{ inputs.SKIP_SETUP_TERRAFORM == 'ON'}}
+      if: ${{ inputs.TURN_SETUP_TERRAFORM == 'ON'}}
       with:
         cli_config_credentials_token: ${{ inputs.TERRAFORM_CLOUD_API_TOKEN }}
     - name: "Init Terraform"

@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: "set k8s KUBE_CONFIG_PATH path token"
+      - name: "set oci k8s"
         id: oci_cli_k8s
         uses: ./.github/actions/oci-cli-k8s
         with:
