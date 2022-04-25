@@ -1,7 +1,11 @@
-provider "kubernetes" {
-  config_path    = "~/.kube/config"
+terraform {
+  required_providers {
+    oci = {
+      source  = "oracle/oci"
+      version = "~> 4.72.0"
+    }
+  }
 }
-
 resource "kubernetes_deployment_v1" "docker_hello_world" {
   metadata {
     name = "docker-hello-world-deployment"

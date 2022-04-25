@@ -11,6 +11,7 @@ variable "compartment_ocid" {
 variable "ingrss_nginx_lb_ip" {
   type        = string
   description = "ingrss_nginx_lb_ip"
+  default = ""
 }
 
 # login variable
