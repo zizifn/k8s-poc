@@ -8,7 +8,7 @@ on:
         required: true
       module:
         description: "module name"
-        default: "k8s-echo-test"
+        default: "k8s-app-hello"
         required: true
 defaults:
   run:
