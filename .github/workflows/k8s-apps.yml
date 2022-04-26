@@ -10,6 +10,10 @@ on:
         description: "module name"
         default: "k8s-echo-test"
         required: true
+defaults:
+  run:
+    shell: bash
+    working-directory: ./k8s-apps
 jobs:
   oci-infra-demo:
     name: Build With Terraform

@@ -17,10 +17,10 @@ terraform {
       source  = "oracle/oci"
       version = "~> 4.72.0"
     }
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = ">= 2.10.0"
-    }
+    # kubernetes = {
+    #   source  = "hashicorp/kubernetes"
+    #   version = ">= 2.10.0"
+    # }
 
     helm = {
       source  = "hashicorp/helm"
@@ -68,9 +68,9 @@ module "k8s-cluster" {
   compartment_id = var.compartment_ocid
   vcn_id         = module.k8s-vcn-infra.vcn_id
   is_arm         = false
-  # depends_on = [
-  #   module.k8s-vcn-infra
-  # ]
+  depends_on = [
+    module.k8s-vcn-infra
+  ]
 }
 
 module "k8s-ingress-nginx" {
@@ -81,27 +81,12 @@ module "k8s-ingress-nginx" {
   ]
 }
 
-module "k8s-secrets" {
-  source = "./modules/k8s-secrets"
-  # depends_on = [
-  #   module.k8s-ingress-nginx
-  # ]
-}
-
-module "k8s-app-config-map" {
-  source = "./modules/k8s-app-config-map"
-}
-
-module "k8s-app-hello" {
-  source = "./modules/k8s-app-hello"
-  depends_on = [
-    module.k8s-secrets
-  ]
-}
-
 module "k8s-echo-test" {
   source = "./modules/k8s-echo-test"
   compartment_id = var.compartment_ocid
+  depends_on = [
+    module.k8s-ingress-nginx
+  ]
 }
 
 output "echo_k8s" {
@@ -112,8 +97,23 @@ output "echo_k8s_app" {
 }
 
 
-# move history
-moved {
-  from = module.k8s-ingress-nginx.helm_release.example
-  to   = module.k8s-ingress-nginx.helm_release.ingress-nginx
-}
+# move history for state
+# moved {
+#   from = module.k8s-ingress-nginx.helm_release.example
+#   to   = module.k8s-ingress-nginx.helm_release.ingress-nginx
+# }
+
+# moved {
+#   from = module.k8s-secrets
+#   to   = module.k8s-apps.module.k8s-secrets
+# }
+# moved {
+#   from = module.k8s-app-config-map
+#   to   = module.k8s-apps.module.k8s-app-config-map
+# }
+
+# moved {
+#   from = module.k8s-app-hello
+#   to   = module.k8s-apps.module.k8s-app-hello
+# }
+
