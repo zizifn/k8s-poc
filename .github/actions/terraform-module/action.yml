@@ -36,10 +36,10 @@ runs:
           echo "TERRAFORM_MODULE: ${{inputs.TERRAFORM_MODULE}}"
           if [[ "${{ inputs.TERRAFORM_CH_DIR}}" ]]; then chdir="-chdir=${{ inputs.TERRAFORM_CH_DIR }}"; else echo "no TERRAFORM_CH_DIR"; fi
           echo $chdir
-          echo $chdir >> $GITHUB_ENV
+          echo chdir=$chdir >> $GITHUB_ENV
           if [[ "${{ inputs.TERRAFORM_MODULE}}" ]]; then target="-target=module.${{ inputs.TERRAFORM_MODULE }}"; else echo "no TERRAFORM_MODULE"; fi
           echo $target
-          echo $target >> $GITHUB_ENV
+          echo target=$target >> $GITHUB_ENV
       shell: bash
     - name: "Init Terraform"
       id: init
