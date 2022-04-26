@@ -57,4 +57,4 @@ jobs:
           TURN_SETUP_TERRAFORM: 'ON'
           TERRAFORM_ACTIONS: ${{github.event.inputs.actions}}
           TERRAFORM_MODULE: ${{github.event.inputs.module}}
-          TERRAFORM_CH_DIR: "./k8s-apps"
+          TERRAFORM_CH_DIR: ${{github.event.inputs.chdir}}
