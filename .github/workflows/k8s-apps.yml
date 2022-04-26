@@ -32,7 +32,7 @@ jobs:
         run: |
           echo "actions: ${{github.event.inputs.actions}}"
           echo "module: ${{github.event.inputs.module}}"
-          chdir=${{(inputs.module && '-chdir=${{inputs.module}}') || ''}}
+          chdir=${{(github.event.inputs.module && '-chdir=${{github.event.inputs.module}}') || ''}}
           echo $chdir
       - name: "set oci k8s"
         id: oci_cli_k8s
