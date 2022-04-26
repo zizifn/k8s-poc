@@ -43,7 +43,9 @@ runs:
       shell: bash
     - name: "Init Terraform"
       id: init
-      run: terraform $chdir init
+      run: |
+        echo $chdir
+        terraform $chdir init
       shell: bash
 
     - name: "Validate Terraform"
