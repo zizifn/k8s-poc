@@ -31,7 +31,7 @@ jobs:
         run: |
           echo "actions: ${{github.event.inputs.actions}}"
           echo "module: ${{github.event.inputs.module}}"
-          if [[ ${{ github.event.inputs.module }} ]]; then echo "-chdir=${{ github.event.inputs.module }}"; else echo "else case" fi
+          if [[ ${{ github.event.inputs.module }} ]]; then echo "-chdir=${{ github.event.inputs.module }}"; else echo "else case"; fi
           chdir1="tesssss${{ github.event.inputs.module }}"
           echo $chdir1
           echo $chdir > $GITHUB_ENV
