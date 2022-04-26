@@ -43,6 +43,8 @@ jobs:
         run: |
           echo "actions: ${{github.event.inputs.actions}}"
           echo "module: ${{github.event.inputs.module}}"
+          chdir=${{(inputs.module && '-chdir='inputs.module) || ''}}
+          echo $chdir
 
       - name: "Terraform module"
         id: terraform_module

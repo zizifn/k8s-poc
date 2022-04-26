@@ -43,7 +43,8 @@ runs:
     - name: "Terraform Plan"
       id: plan
       if: ${{ inputs.TERRAFORM_ACTIONS == 'apply'}}
-      run: terraform -chdir=${{inputs.TERRAFORM_CH_DIR}} plan -target=module.${{  inputs.TERRAFORM_MODULE }} -out result
+      run: |
+        terraform -chdir=${{inputs.TERRAFORM_CH_DIR}} plan -target=module.${{  inputs.TERRAFORM_MODULE }} -out result
       shell: bash
     - name: "Terraform destroy Plan"
       id: destroy-plan
