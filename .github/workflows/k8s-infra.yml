@@ -1,4 +1,4 @@
-name: oci-terraform-build-demo
+name: oci-k8s-infra
 on:
   workflow_dispatch:
     inputs:
