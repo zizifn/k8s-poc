@@ -68,9 +68,9 @@ module "k8s-cluster" {
   compartment_id = var.compartment_ocid
   vcn_id         = module.k8s-vcn-infra.vcn_id
   is_arm         = false
-  depends_on = [
-    module.k8s-vcn-infra
-  ]
+  # depends_on = [
+  #   module.k8s-vcn-infra
+  # ]
 }
 
 module "k8s-ingress-nginx" {
@@ -81,10 +81,21 @@ module "k8s-ingress-nginx" {
   ]
 }
 
+module "k8s-secrets" {
+  source = "./modules/k8s-secrets"
+  # depends_on = [
+  #   module.k8s-ingress-nginx
+  # ]
+}
+
+module "k8s-app-config-map" {
+  source = "./modules/k8s-app-config-map"
+}
+
 module "k8s-app-hello" {
   source = "./modules/k8s-app-hello"
   depends_on = [
-    module.k8s-ingress-nginx
+    module.k8s-secrets
   ]
 }
 
@@ -97,8 +108,9 @@ output "echo_k8s" {
   value = module.k8s-echo-test.echo_k8s
 }
 output "echo_k8s_app" {
-  value = module.k8s-echo-test.echo_k8s_app
+  value = module.k8s-echo-test.echo_k8s_app.id
 }
+
 
 # move history
 moved {

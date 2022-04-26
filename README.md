@@ -32,6 +32,7 @@ https://www.terraform.io/cli/cloud
 1. terraform state rm [options] ADDRESS...
 2. https://www.terraform.io/cli/state/move
 3. https://learn.hashicorp.com/tutorials/terraform/move-config
+4. terraform state list "module.k8s-app-hello"
 
 ## Kubernetes 
 

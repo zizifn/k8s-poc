@@ -1,0 +1,34 @@
+resource "kubernetes_manifest" "nginx_ingress" {
+  for_each = local.apps # 循环
+  manifest = {
+    "apiVersion" = "networking.k8s.io/v1"
+    "kind"       = "Ingress"
+    "metadata" = {
+      "name"      = each.value.ingress_nginx_name
+      "namespace" = "default"
+    }
+    "spec" = {
+      "ingressClassName" = "nginx"
+      "rules" = [
+        {
+          "http" = {
+            "paths" = [
+              {
+                "backend" = {
+                  "service" = {
+                    "name" = each.value.service_name
+                    "port" = {
+                      "number" = each.value.svc_port
+                    }
+                  }
+                }
+                "path"     = each.value.ingress_path
+                "pathType" = "Prefix"
+              },
+            ]
+          }
+        },
+      ]
+    }
+  }
+}
