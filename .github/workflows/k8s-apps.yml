@@ -9,6 +9,11 @@ on:
       module:
         description: "module name"
         default: "k8s-app-hello"
+        required: false
+      chdir:
+        description: "chdir"
+        default: "./k8s-apps"
+        required: false
 
 jobs:
   oci-infra-demo:
@@ -31,12 +36,6 @@ jobs:
         run: |
           echo "actions: ${{github.event.inputs.actions}}"
           echo "module: ${{github.event.inputs.module}}"
-          if [[ ${{ github.event.inputs.module }} ]]; then chdir="-chdir=${{ github.event.inputs.module }}"; else echo "else case"; fi
-          chdir1="tesssss${{ github.event.inputs.module }}"
-          echo $chdir1
-          echo "---------------"
-          echo $chdir
-          echo $chdir > $GITHUB_ENV
       - name: "echo input111"
         run: |
           echo $chdir
