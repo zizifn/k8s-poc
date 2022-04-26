@@ -161,6 +161,7 @@ resource "oci_core_subnet" "k8s_vcn_private_subnet" {
   route_table_id             = oci_core_route_table.k8s_private_subnet_route_table.id
   security_list_ids          = [oci_core_security_list.private_k8s_subnet_sl.id]
   display_name               = "k8s-private-subnet"
+  dns_label                  = "k8s-private-subnet"
   prohibit_public_ip_on_vnic = true
 }
 
@@ -172,4 +173,5 @@ resource "oci_core_subnet" "k8s_vcn_public_subnet" {
   route_table_id    = oci_core_route_table.k8s_public_subnet_route_table.id
   security_list_ids = [oci_core_security_list.public_k8s_subnet_sl.id]
   display_name      = "k8s-public-subnet"
+  dns_label         = "k8s-public-subnet"
 }

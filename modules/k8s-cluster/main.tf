@@ -10,7 +10,12 @@ data "oci_core_vcn" "k8s_vcn" {
   #Required
   vcn_id = var.vcn_id
 }
+data "oci_core_network_security_groups" "internet_access_network_security_groups" {
 
+    #Optional
+    compartment_id = var.compartment_id
+    display_name = "nsg_common_internet_access_id"
+}
 data "oci_core_subnets" "k8s_subnets" {
   #Required
   compartment_id = var.compartment_id
@@ -106,7 +111,45 @@ resource "oci_containerengine_node_pool" "k8s_node_pool" {
 
   initial_node_labels {
     key   = "name"
-    value = "k8s-cluster"
+    value = "k8s-private-public"
+  }
+
+  # ssh_public_key = var.ssh_public_key
+}
+
+resource "oci_containerengine_node_pool" "k8s_node_pool_public" {
+  cluster_id         = oci_containerengine_cluster.k8s_cluster.id
+  compartment_id     = var.compartment_id
+  kubernetes_version = local.kubernetes_version
+  name               = "k8s-node-pool-public"
+  node_config_details {
+    placement_configs {
+      availability_domain = data.oci_identity_availability_domains.ads.availability_domains[0].name
+      subnet_id           = local.vcn_public_subnet[0].id
+    }
+    # placement_configs {
+    #   availability_domain = data.oci_identity_availability_domains.ads.availability_domains[0].name
+    #   subnet_id           = local.vcn_private_subnet[0].id
+    # }
+    size = 1
+    # defined_tags = { "operation.Cost" = "k8s" }
+    nsg_ids = data.oci_core_network_security_groups.internet_access_network_security_groups[*].id
+  }
+  node_shape = local.os.shape
+
+  node_shape_config {
+    memory_in_gbs = 16
+    ocpus         = 1
+  }
+
+  node_source_details {
+    image_id    = local.os.image[0].id
+    source_type = "image"
+  }
+
+  initial_node_labels {
+    key   = "name"
+    value = "k8s-node-public"
   }
 
   # ssh_public_key = var.ssh_public_key
