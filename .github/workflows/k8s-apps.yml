@@ -7,12 +7,10 @@ on:
         default: "apply"
         required: true
       module:
-        description: "module name"
-        default: "k8s-app-hello"
+        description: "module name, like k8s-app-hello"
         required: false
       chdir:
-        description: "chdir"
-        default: "./k8s-apps"
+        description: "chdir, like ./k8s-apps"
         required: false
 
 jobs:
