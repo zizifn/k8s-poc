@@ -10,10 +10,7 @@ on:
         description: "module name"
         default: "k8s-app-hello"
         required: true
-defaults:
-  run:
-    shell: bash
-    working-directory: ./k8s-apps
+
 jobs:
   oci-infra-demo:
     name: Build With Terraform
@@ -55,3 +52,4 @@ jobs:
           TURN_SETUP_TERRAFORM: 'ON'
           TERRAFORM_ACTIONS: ${{github.event.inputs.actions}}
           TERRAFORM_MODULE: ${{github.event.inputs.module}}
+          TERRAFORM_CH_DIR: "./k8s-apps"
