@@ -30,28 +30,39 @@ runs:
       if: ${{ inputs.TURN_SETUP_TERRAFORM == 'ON'}}
       with:
         cli_config_credentials_token: ${{ inputs.TERRAFORM_CLOUD_API_TOKEN }}
+    - name: "setup env and parm"
+      run: |
+          echo "TERRAFORM_CH_DIR: ${{inputs.TERRAFORM_CH_DIR}}"
+          echo "TERRAFORM_MODULE: ${{inputs.TERRAFORM_MODULE}}"
+          if [[ ${{ inputs.TERRAFORM_CH_DIR }} ]]; then chdir="-chdir=${{ inputs.TERRAFORM_CH_DIR }}"; else echo "no TERRAFORM_CH_DIR"; fi
+          echo $chdir
+          echo $chdir > $GITHUB_ENV
+          if [[ ${{ inputs.TERRAFORM_MODULE }} ]]; then target="-target=module.${{ inputs.TERRAFORM_MODULE }}"; else echo "no TERRAFORM_MODULE"; fi
+          echo $target
+          echo $target > $GITHUB_ENV
+      shell: bash
     - name: "Init Terraform"
       id: init
-      run: terraform -chdir=${{inputs.TERRAFORM_CH_DIR}} init
+      run: terraform $chdir init
       shell: bash
 
     - name: "Validate Terraform"
       id: validate
-      run: terraform -chdir=${{inputs.TERRAFORM_CH_DIR}} validate
+      run: terraform $chdir validate
       shell: bash
 
     - name: "Terraform Plan"
       id: plan
       if: ${{ inputs.TERRAFORM_ACTIONS == 'apply'}}
       run: |
-        terraform -chdir=${{inputs.TERRAFORM_CH_DIR}} plan -target=module.${{  inputs.TERRAFORM_MODULE }} -out result
+        terraform $chdir plan $target -out result
       shell: bash
     - name: "Terraform destroy Plan"
       id: destroy-plan
       if: ${{  github.event.inputs.actions == 'destroy'}}
-      run: terraform -chdir=${{inputs.TERRAFORM_CH_DIR}} plan -destroy -target=module.${{  inputs.TERRAFORM_MODULE }} -out result
+      run: terraform $chdir plan -destroy $target -out result
       shell: bash
     - name: "Terraform Apply"
       id: apply
-      run: terraform -chdir=${{inputs.TERRAFORM_CH_DIR}} apply result
+      run: terraform $chdir apply result
       shell: bash
