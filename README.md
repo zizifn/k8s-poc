@@ -52,3 +52,7 @@ http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-da
 
 https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengsettingupingresscontroller.htm
 https://kubernetes.github.io/ingress-nginx/deploy/#oracle-cloud-infrastructure
+
+
+### troubleshooting
+https://kubernetes.github.io/ingress-nginx/troubleshooting/

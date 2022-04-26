@@ -1,11 +1,11 @@
-terraform {
-  required_providers {
-    oci = {
-      source  = "oracle/oci"
-      version = "~> 4.72.0"
-    }
-  }
-}
+# terraform {
+#   required_providers {
+#     oci = {
+#       source  = "oracle/oci"
+#       version = "~> 4.72.0"
+#     }
+#   }
+# }
 
 resource "kubernetes_secret_v1" "secret_ap123456" {
   metadata {

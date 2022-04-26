@@ -1,0 +1,57 @@
+name: oci-terraform-build-demo
+on:
+  workflow_dispatch:
+    inputs:
+      actions:
+        description: "action: apply/destroy"
+        default: "apply"
+        required: true
+      module:
+        description: "module name"
+        default: "k8s-echo-test"
+        required: true
+defaults:
+  run:
+    shell: bash
+    working-directory: ./k8s-infra
+jobs:
+  oci-infra-demo:
+    name: Build With Terraform
+    runs-on: ubuntu-latest
+    env:
+      TF_VAR_tenancy_ocid: ${{secrets.OCI_TENANCY_OCID}}
+      TF_VAR_compartment_ocid: ${{secrets.OCI_COMPARTMENT_OCID}}
+      TF_VAR_user_ocid: ${{secrets.OCI_USER_OCID}}
+      TF_VAR_private_key_password: ${{secrets.OCI_PASSPHRASE}}
+      TF_VAR_private_key: ${{secrets.OCI_KEY_FILE}}
+      TF_VAR_fingerprint: ${{secrets.OCI_FINGERPRINT}}
+      TF_VAR_region: ${{secrets.OCI_REGION}}
+      TF_VAR_ingrss_nginx_lb_ip: ${{secrets.OCI_K8S_INGRSS_NGINX_LB_IP}}
+      OCI_K8S_CONFIG: ${{secrets.OCI_K8S_CONFIG}}
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: "set oci k8s"
+        id: oci_cli_k8s
+        uses: ./.github/actions/oci-cli-k8s
+        with:
+          k8s_config: ${{secrets.OCI_K8S_CONFIG}}
+          user: ${{secrets.OCI_USER_OCID}}
+          fingerprint: ${{secrets.OCI_FINGERPRINT}}
+          region: ${{secrets.OCI_REGION}}
+          tenancy: ${{secrets.OCI_TENANCY_OCID}}
+          key_file: ${{secrets.OCI_KEY_FILE}}
+          pass_phrase: ${{secrets.OCI_PASSPHRASE}}
+      - name: "echo input"
+        run: |
+          echo "actions: ${{github.event.inputs.actions}}"
+          echo "module: ${{github.event.inputs.module}}"
+
+      - name: "Terraform module"
+        id: terraform_module
+        uses: ./.github/actions/terraform-module
+        with:
+          TERRAFORM_CLOUD_API_TOKEN: ${{secrets.TERRAFORM_CLOUD_API_TOKEN}}
+          TURN_SETUP_TERRAFORM: 'ON'
+          TERRAFORM_ACTIONS: ${{github.event.inputs.actions}}
+          TERRAFORM_MODULE: ${{github.event.inputs.module}}

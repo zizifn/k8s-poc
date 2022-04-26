@@ -13,9 +13,9 @@ data "oci_containerengine_clusters" "echo_clusters" {
 }
 
 # oke app
-data "kubernetes_service" "hello-world" {
+data "kubernetes_service" "my-ingress-nginx-controller" {
   metadata {
-    name = "docker-hello-world-svc"
+    name = "my-ingress-nginx-controller"
   }
 }
 
@@ -25,5 +25,5 @@ output "echo_k8s" {
 }
 
 output "echo_k8s_app" {
-  value = data.kubernetes_service.hello-world
+  value = data.kubernetes_service.my-ingress-nginx-controller
 }

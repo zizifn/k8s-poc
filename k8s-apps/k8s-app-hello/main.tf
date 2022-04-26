@@ -1,11 +1,11 @@
-terraform {
-  required_providers {
-    oci = {
-      source  = "oracle/oci"
-      version = "~> 4.72.0"
-    }
-  }
-}
+# terraform {
+#   required_providers {
+#     oci = {
+#       source  = "oracle/oci"
+#       version = "~> 4.72.0"
+#     }
+#   }
+# }
 resource "kubernetes_deployment_v1" "k8s_deployment" {
   for_each = local.apps # 循环
   metadata {
@@ -42,8 +42,8 @@ resource "kubernetes_deployment_v1" "k8s_deployment" {
 
       spec {
         container {
-          name  = "docker-hello-world-container"
-          image = "scottsbaldwin/docker-hello-world:latest"
+          name  = each.key
+          image = each.value.docker_image
 
           port {
             container_port = each.value.container_port
@@ -94,7 +94,7 @@ resource "kubernetes_ingress_v1" "nginx_ingress" {
     }
   }
   spec {
-
+    ingress_class_name = "nginx"
     rule {
       http {
         dynamic "path" { # 循环
