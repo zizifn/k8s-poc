@@ -1,19 +1,18 @@
-name: oci-k8s-infra
+name: k8s-bse-apps-update
 on:
   workflow_dispatch:
     inputs:
       actions:
-        description: "action: plan/apply/destroy"
+        description: "action: apply/destroy"
         default: "apply"
         required: true
-      # trun_k8s_init_app:
-      #   description: "module name, pass ON"
-      #   default: "OFF"
-      #   required: true
-defaults:
-  run:
-    shell: bash
-    working-directory: ./k8s-infra
+      module:
+        description: "module name, like k8s-app-hello"
+        required: false
+      chdir:
+        description: "chdir, like ./k8s-apps"
+        required: false
+
 jobs:
   oci-infra-demo:
     name: Build With Terraform
@@ -27,11 +26,17 @@ jobs:
       TF_VAR_fingerprint: ${{secrets.OCI_FINGERPRINT}}
       TF_VAR_region: ${{secrets.OCI_REGION}}
       TF_VAR_ingrss_nginx_lb_ip: ${{secrets.OCI_K8S_INGRSS_NGINX_LB_IP}}
-      # TF_VAR_trun_k8s_init_app: ${{github.event.inputs.}}
       OCI_K8S_CONFIG: ${{secrets.OCI_K8S_CONFIG}}
 
     steps:
       - uses: actions/checkout@v2
+      - name: "echo input"
+        run: |
+          echo "actions: ${{github.event.inputs.actions}}"
+          echo "module: ${{github.event.inputs.module}}"
+      - name: "echo input111"
+        run: |
+          echo $chdir
       - name: "set oci k8s"
         id: oci_cli_k8s
         uses: ./.github/actions/oci-cli-k8s
@@ -43,30 +48,13 @@ jobs:
           tenancy: ${{secrets.OCI_TENANCY_OCID}}
           key_file: ${{secrets.OCI_KEY_FILE}}
           pass_phrase: ${{secrets.OCI_PASSPHRASE}}
-      - name: "echo input"
-        run: |
-          echo "actions: ${{github.event.inputs.actions}}"
-          echo "module: ${{github.event.inputs.module}}"
 
-      - name: "Terraform setup vcn and infra"
+      - name: "Terraform module"
         id: terraform_module
         uses: ./.github/actions/terraform-module
         with:
           TERRAFORM_CLOUD_API_TOKEN: ${{secrets.TERRAFORM_CLOUD_API_TOKEN}}
           TURN_SETUP_TERRAFORM: 'ON'
           TERRAFORM_ACTIONS: ${{github.event.inputs.actions}}
-          TERRAFORM_CH_DIR: "k8s-infra"
-      - name: "set ingress_nginx_lb_ip env"
-        run: |
-          TF_VAR_ingrss_nginx_lb_ip=(terraform output -raw ingrss_nginx_lb_ip) >> $GITHUB_ENV
-          TF_VAR_nsg_common_internet_access_id=(terraform output -raw nsg_common_internet_access_id) >> $GITHUB_ENV
-        shell: bash
-      - name: "setup k8s base apps"
-        id: terraform_module
-        uses: ./.github/actions/terraform-module
-        if: ${{github.event.inputs.actions != 'plan'}}
-        with:
-          TERRAFORM_CLOUD_API_TOKEN: ${{secrets.TERRAFORM_CLOUD_API_TOKEN}}
-          TURN_SETUP_TERRAFORM: 'ON'
-          TERRAFORM_ACTIONS: ${{github.event.inputs.actions}}
-          TERRAFORM_CH_DIR: "k8s-base-apps"
+          TERRAFORM_MODULE: ${{github.event.inputs.module}}
+          TERRAFORM_CH_DIR: ${{github.event.inputs.chdir}}
