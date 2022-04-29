@@ -30,3 +30,8 @@ result
 
 # Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
 # example: *tfplan*
+
+ingrss_nginx_lb_ip
+oci_kube_config
+test/*
+*.temp

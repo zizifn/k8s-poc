@@ -38,6 +38,8 @@ https://www.terraform.io/cli/cloud
 
 ### Kubernetes Dashboard
 
+Follow OKE wesite link to get access to Kubernetes
+
 ``` bash
 kubectl -n kube-system get secret
 
@@ -48,6 +50,15 @@ kubectl proxy
 
 http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login
 
+### get access token
+
+``` bash
+TOKENNAME=`kubectl -n kube-system get serviceaccount/kubeconfig-sa -o jsonpath='{.secrets[0].name}'`
+
+kubectl -n kube-system get secret $TOKENNAME -o jsonpath='{.data.token}'
+
+base64 --decode
+```
 ### Add Ingress Controller
 
 https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengsettingupingresscontroller.htm

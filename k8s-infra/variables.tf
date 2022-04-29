@@ -1,19 +1,22 @@
-# variable "ssh_public_key" {
-#   type        = string
-#   description = "The SSH public key to use for connecting to the worker nodes"
-# }
+variable "local" {
+  type = bool
+  description = "local"
+  default = false
+}
 
+variable "ssh_public_key" {
+  type        = string
+  description = "The SSH public key to use for connecting to the worker nodes"
+  default = null
+  sensitive = true
+}
 
-variable "compartment_ocid" {
+variable "compartment_id" {
   type        = string
   description = "The compartment to create the resources in"
+  sensitive = true
 }
 
-variable "ingrss_nginx_lb_ip" {
-  type        = string
-  description = "ingrss_nginx_lb_ip"
-  default = ""
-}
 
 # login variable
 variable "tenancy_ocid" {

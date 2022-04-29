@@ -14,42 +14,28 @@ terraform {
   }
 
   required_providers {
-    # oci = {
-    #   source  = "oracle/oci"
-    #   version = "~> 4.72.0"
-    # }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = ">= 2.10.0"
+      version = "2.10.0"
     }
-
-    # helm = {
-    #   source  = "hashicorp/helm"
-    #   version = ">= 2.5.1"
-    # }
   }
 }
-# # cau be use this no need .oci/config
-  # provider "oci" {
-  #   tenancy_ocid = var.tenancy_ocid
-  #   user_ocid    = var.user_ocid
-  #   private_key  = var.private_key
-  #   fingerprint  = var.fingerprint
-  #   region       = var.region
-  # }
 
-# provider "helm" {
-#   kubernetes {
-#     config_path    = "~/.kube/config"
-#   }
-# }
 
 provider "kubernetes" {
-  config_path    = "~/.kube/config"
+  # config_path = "~/.kube/config"
+  host = var.k8s_host
+  config_context_auth_info = var.config_context_auth_info
+  # username =
+  token = var.service_account_token
+  cluster_ca_certificate = base64decode(var.cluster_ca_certificate_base64)
 }
 
 module "k8s-secrets" {
   source = "./k8s-secrets"
+  depends_on = [
+    module.file
+  ]
 }
 
 module "k8s-app-config-map" {
