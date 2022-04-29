@@ -8,7 +8,12 @@
 # }
 
 
-output "temp" {
-    value = module.k8s-auth-token.kubeconfig_sa_secret
-    sensitive = true
-}
+# output "temp" {
+#     value = module.k8s-auth-token.kubeconfig_sa_secret
+#     sensitive = true
+# }
+
+# output "temp2" {
+#     value = module.k8s-auth-token.temp2
+#     sensitive = true
+# }

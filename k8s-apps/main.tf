@@ -18,24 +18,24 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = "2.10.0"
     }
+    local = {
+      source = "hashicorp/local"
+    }
   }
 }
 
 
 provider "kubernetes" {
   # config_path = "~/.kube/config"
-  host = var.k8s_host
+  host                     = var.k8s_host
   config_context_auth_info = var.config_context_auth_info
   # username =
-  token = var.service_account_token
-  cluster_ca_certificate = base64decode(var.cluster_ca_certificate_base64)
+  token                  = var.service_account_token
+  cluster_ca_certificate = var.cluster_ca_certificate
 }
 
 module "k8s-secrets" {
   source = "./k8s-secrets"
-  depends_on = [
-    module.file
-  ]
 }
 
 module "k8s-app-config-map" {

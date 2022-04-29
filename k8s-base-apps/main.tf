@@ -44,20 +44,20 @@ module "k8s-auth-token" {
 
 # get kubeconfig-sa secrets
 
-# resource "local_sensitive_file" "sa_kube_config" {
-#   count = var.local ? 1 : 0
-#   content = templatefile("${path.module}/sa_kube_config.tftpl",
-#     {
-#       host                     = ""
-#       config_context_auth_info = module.k8s-auth-token.kubeconfig_sa_secret.metadata[0].annotations["kubernetes\\.io/service-account\\.name"]
-#       token                    = module.k8s-auth-token.kubeconfig_sa_secret.data.token
-#       cluster_ca_certificate   = module.k8s-auth-token.kubeconfig_sa_secret.data["ca.crt"]
-#   })
-#   filename = "../${path.module}/sa_kube_config.temp"
-#   depends_on = [
-#     module.k8s-auth-token
-#   ]
-# }
+resource "local_sensitive_file" "sa_kube_config" {
+  count = var.local ? 1 : 0
+  content = templatefile("${path.module}/sa_kube_config.tftpl",
+    {
+      host                     = ""
+      config_context_auth_info = "kubeconfig-sa"
+      token                    = module.k8s-auth-token.kubeconfig_sa_secret.data.token
+      cluster_ca_certificate   = module.k8s-auth-token.kubeconfig_sa_secret.data["ca.crt"]
+  })
+  filename = "../${path.module}/sa_kube_config.temp"
+  depends_on = [
+    module.k8s-auth-token
+  ]
+}
 
 
 module "k8s-ingress-nginx" {

@@ -16,4 +16,10 @@ resource "helm_release" "ingress-nginx" {
     name  = "controller.service.annotations.oci\\.oraclecloud\\.com/oci-network-security-groups" # 转移 逗号
     value = var.lb_nsg_id
   }
+
+  #  lifecycle {
+  #   ignore_changes = [
+  #     "set.name"
+  #   ]
+  # }
 }

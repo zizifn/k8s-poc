@@ -70,7 +70,7 @@ resource "oci_core_network_security_group_security_rule" "egress_443_network_sec
   direction                 = "EGRESS"
   protocol                  = "6"
   #Optional
-  description = "http 80"
+  description = "http 443"
   destination = "0.0.0.0/0"
   destination_type = "CIDR_BLOCK"
   stateless   = false
