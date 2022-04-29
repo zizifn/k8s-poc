@@ -18,7 +18,7 @@ variable "service_account_token" {
   description = "service_account_token"
 }
 
-variable "cluster_ca_certificate_base64" {
+variable "cluster_ca_certificate" {
   type        = string
   description = "cluster_ca_certificate_base64"
 }

@@ -33,5 +33,6 @@ result
 
 ingrss_nginx_lb_ip
 oci_kube_config
-test/*
+**/test/**
 *.temp
+test/test.tf
