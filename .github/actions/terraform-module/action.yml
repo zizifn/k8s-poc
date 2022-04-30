@@ -31,6 +31,7 @@ runs:
       with:
         cli_config_credentials_token: ${{ inputs.TERRAFORM_CLOUD_API_TOKEN }}
         terraform_version: 1.1.9
+        terraform_wrapper: false # add this fix terraform output has extra info
     - name: "setup env and parm"
       id: vars
       run: |
