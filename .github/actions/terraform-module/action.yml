@@ -31,7 +31,7 @@ runs:
       with:
         cli_config_credentials_token: ${{ inputs.TERRAFORM_CLOUD_API_TOKEN }}
         terraform_version: 1.1.9
-        terraform_wrapper: false # add this fix terraform output has extra info
+        # terraform_wrapper: false # add this fix terraform output has extra info
     - name: "setup env and parm"
       id: vars
       run: |
@@ -82,8 +82,7 @@ runs:
     - name: "set env"
       id: terraform_output
       run: |
-        echo "::add-mask::${{ steps.apply.outputs.stdout }}"
-        echo "::add-mask::${{ steps.apply.outputs.stdout }}"
+        echo "output is ${{ steps.apply.outputs.stdout }}"
         temp=$(terraform ${{ steps.vars.outputs.chdir }} output -json)
         # echo $temp
         # echo "::set-output name=json::$temp" # this line has error, because"
