@@ -85,5 +85,5 @@ runs:
         #  echo $ip1
          temp=$(terraform ${{ steps.vars.outputs.chdir }} output -json)
         #  echo $temp
-         echo "::set-output name=json::$temp"
+         echo "::set-output name=json::fromJSON($temp)"
       shell: bash
