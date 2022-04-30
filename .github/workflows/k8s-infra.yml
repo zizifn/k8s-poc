@@ -58,19 +58,24 @@ jobs:
           TURN_SETUP_TERRAFORM: 'ON'
           TERRAFORM_ACTIONS: ${{github.event.inputs.actions}}
           TERRAFORM_CH_DIR: "k8s-infra"
+
       - name: "output"
         run: |
-          # echo "${{ steps.k8s_infra.outputs.json_output }}"
-          # echo "${{ steps.k8s_infra.outputs.json_output.ingrss_nginx_lb_ip.value }}"
-          # echo "${{ fromJSON(steps.k8s_infra.outputs.json_output) }}"
-          #  echo "ingrss_nginx_lb_ip is ${{ fromJSON(steps.k8s_infra.outputs.json_output).ingrss_nginx_lb_ip }}"
-          # terraform -chdir=k8s-infra output -raw ingrss_nginx_lb_ip
-          # echo '[{ "name": "test", "client_payload": "111" }, { "name": "test2", "client_payload": "222" }]' | jq '.[].name'
-          # # terraform output -raw ingrss_nginx_lb_ip
-          # terraform output -raw nsg_common_internet_access_id
-          # TF_VAR_ingrss_nginx_lb_ip=(terraform output -raw ingrss_nginx_lb_ip) >> $GITHUB_ENV
-          # TF_VAR_nsg_common_internet_access_id=(terraform output -raw nsg_common_internet_access_id) >> $GITHUB_ENV
+            echo "ddd"
         shell: bash
+      # - name: "output"
+      #   run: |
+      #     # echo "${{ steps.k8s_infra.outputs.json_output }}"
+      #     # echo "${{ steps.k8s_infra.outputs.json_output.ingrss_nginx_lb_ip.value }}"
+      #     # echo "${{ fromJSON(steps.k8s_infra.outputs.json_output) }}"
+      #     #  echo "ingrss_nginx_lb_ip is ${{ fromJSON(steps.k8s_infra.outputs.json_output).ingrss_nginx_lb_ip }}"
+      #     # terraform -chdir=k8s-infra output -raw ingrss_nginx_lb_ip
+      #     # echo '[{ "name": "test", "client_payload": "111" }, { "name": "test2", "client_payload": "222" }]' | jq '.[].name'
+      #     # # terraform output -raw ingrss_nginx_lb_ip
+      #     # terraform output -raw nsg_common_internet_access_id
+      #     # TF_VAR_ingrss_nginx_lb_ip=(terraform output -raw ingrss_nginx_lb_ip) >> $GITHUB_ENV
+      #     # TF_VAR_nsg_common_internet_access_id=(terraform output -raw nsg_common_internet_access_id) >> $GITHUB_ENV
+      #   shell: bash
       - name: "setup k8s base apps"
         id: k8s_base_app
         uses: ./.github/actions/terraform-module
