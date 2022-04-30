@@ -80,5 +80,7 @@ runs:
     - name: "set Terraform output"
       id: output
       run: |
-         echo ::set-output name=json::$(terraform output -json)
+         temp=$(terraform output -json)
+         echo "temp result is $temp"
+         echo "::set-output name=json::$temp"
       shell: bash
