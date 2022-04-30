@@ -80,7 +80,9 @@ runs:
     - name: "set Terraform output"
       id: output
       run: |
+         ip1=$(terraform ${{ steps.vars.outputs.chdir }} output -raw ingrss_nginx_lb_ip)
+         echo $ip1
          temp=$(terraform ${{ steps.vars.outputs.chdir }} output -json)
-         echo "temp result is $temp"
+         echo $temp
          echo "::set-output name=json::$temp"
       shell: bash
