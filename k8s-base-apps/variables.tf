@@ -9,6 +9,12 @@ variable "local" {
   default = false
 }
 
+variable "use" {
+  type = bool
+  description = "local"
+  default = false
+}
+
 variable "ingrss_nginx_lb_ip" {
   type = string
   description = "ingrss_nginx_lb_ip"
