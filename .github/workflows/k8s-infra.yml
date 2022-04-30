@@ -58,10 +58,10 @@ jobs:
           TURN_SETUP_TERRAFORM: 'ON'
           TERRAFORM_ACTIONS: ${{github.event.inputs.actions}}
           TERRAFORM_CH_DIR: "k8s-infra"
-      - name: "set ingress_nginx_lb_ip env"
+      - name: "output"
         run: |
-          echo "${{ steps.k8s_infra.outputs.json_output }}"
-          echo "${{ steps.k8s_infra.outputs.json_output.ingrss_nginx_lb_ip.value }}"
+          # echo "${{ steps.k8s_infra.outputs.json_output }}"
+          # echo "${{ steps.k8s_infra.outputs.json_output.ingrss_nginx_lb_ip.value }}"
           # echo "${{ fromJSON(steps.k8s_infra.outputs.json_output) }}"
           #  echo "ingrss_nginx_lb_ip is ${{ fromJSON(steps.k8s_infra.outputs.json_output).ingrss_nginx_lb_ip }}"
           # terraform -chdir=k8s-infra output -raw ingrss_nginx_lb_ip
