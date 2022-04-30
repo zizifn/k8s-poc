@@ -22,7 +22,7 @@ inputs:
 outputs:
   json_output:
     description: "json outputs"
-    value: ${{ steps.output.outputs.json }}
+    value: ${{ steps.terraform_output.outputs.json }}
 runs:
   using: "composite"
   steps:
@@ -78,20 +78,16 @@ runs:
       if: ${{ inputs.TERRAFORM_ACTIONS != 'plan'}}
       run: terraform ${{ steps.vars.outputs.chdir }} apply result
       shell: bash
-    - name: "set Terraform output"
-      id: output1
+    - name: "set env"
+      id: local_env
       run: |
-        #  ip1=$(terraform ${{ steps.vars.outputs.chdir }} output -raw ingrss_nginx_lb_ip)
-        #  echo $ip1
-        #  temp=$(terraform ${{ steps.vars.outputs.chdir }} output -json | jq '. | tostring')
-        echo temp=$(terraform ${{ steps.vars.outputs.chdir }} output -json) >> $GITHUB_ENV
-         echo $temp
-        echo "${{ env.temp }}"
-        # echo "::set-output name=json::${{ toJSON(env.temp) }}"
+        temp=$(terraform ${{ steps.vars.outputs.chdir }} output -json)
+        echo $temp
+        echo "::set-output name=json::$temp"
       shell: bash
     - name: "set Terraform output"
-      id: output
+      id: terraform_output
       run: |
-        echo " ${{ env.temp }}"
-         echo "::set-output name=json::${{ toJSON(env.temp) }}"
+        # need use toJSON for format to json string, jq also workable, avoid issue
+        echo "::set-output name=json::${{ fromJSON(toJSON(steps.local_env.outputs.json)) }}"
       shell: bash
