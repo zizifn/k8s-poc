@@ -86,6 +86,6 @@ runs:
         #  temp=$(terraform ${{ steps.vars.outputs.chdir }} output -json | jq '. | tostring')
         echo temp=$(terraform ${{ steps.vars.outputs.chdir }} output -json) >> $GITHUB_ENV
         #  echo $temp
-        echo " ${{ env.temp.ingrss_nginx_lb_ip }}"
+        echo " ${{ env.temp }}"
          echo "::set-output name=json::${{ toJSON(env.temp) }}"
       shell: bash
