@@ -47,6 +47,7 @@ jobs:
         run: |
           echo "actions: ${{github.event.inputs.actions}}"
           echo "turn_k8s_base_app: ${{github.event.inputs.turn_k8s_base_app}}"
+          touch oci_kube_config.temp
 
       - name: "Terraform setup vcn and infra"
         id: k8s_infra
