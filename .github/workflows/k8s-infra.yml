@@ -61,7 +61,7 @@ jobs:
       - name: "set ingress_nginx_lb_ip env"
         run: |
           echo "${{ steps.k8s_infra.outputs.json_output }}"
-          echo "${{ steps.k8s_infra.outputs.json_output.ingrss_nginx_lb_ip }}"
+          echo "${{ steps.k8s_infra.outputs.json_output.ingrss_nginx_lb_ip.value }}"
           # terraform -chdir=k8s-infra output -raw ingrss_nginx_lb_ip
           # echo '[{ "name": "test", "client_payload": "111" }, { "name": "test2", "client_payload": "222" }]' | jq '.[].name'
           # # terraform output -raw ingrss_nginx_lb_ip
