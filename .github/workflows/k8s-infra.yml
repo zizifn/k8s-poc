@@ -4,7 +4,7 @@ on:
     inputs:
       actions:
         description: "action: plan/apply/destroy"
-        default: "apply"
+        default: "plan"
         required: true
       turn_k8s_base_app:
         description: "turn_k8s_base_app"
@@ -51,6 +51,7 @@ jobs:
       - name: "Terraform setup vcn and infra"
         id: k8s_infra
         uses: ./.github/actions/terraform-module
+        continue-on-error: false
         with:
           TERRAFORM_CLOUD_API_TOKEN: ${{secrets.TERRAFORM_CLOUD_API_TOKEN}}
           TURN_SETUP_TERRAFORM: 'ON'

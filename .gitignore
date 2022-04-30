@@ -36,3 +36,4 @@ oci_kube_config
 **/test/**
 *.temp
 test/test.tf
+k8s-infra/test
