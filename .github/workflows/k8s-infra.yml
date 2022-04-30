@@ -49,7 +49,7 @@ jobs:
           echo "module: ${{github.event.inputs.module}}"
 
       - name: "Terraform setup vcn and infra"
-        id: terraform_module
+        id: k8s_infra
         uses: ./.github/actions/terraform-module
         with:
           TERRAFORM_CLOUD_API_TOKEN: ${{secrets.TERRAFORM_CLOUD_API_TOKEN}}
@@ -62,7 +62,7 @@ jobs:
           TF_VAR_nsg_common_internet_access_id=(terraform output -raw nsg_common_internet_access_id) >> $GITHUB_ENV
         shell: bash
       - name: "setup k8s base apps"
-        id: terraform_module
+        id: k8s_base_app
         uses: ./.github/actions/terraform-module
         if: ${{github.event.inputs.turn_k8s_base_app == 'ON'}}
         with:
