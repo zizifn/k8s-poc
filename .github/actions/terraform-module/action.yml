@@ -79,13 +79,19 @@ runs:
       run: terraform ${{ steps.vars.outputs.chdir }} apply result
       shell: bash
     - name: "set Terraform output"
-      id: output
+      id: output1
       run: |
         #  ip1=$(terraform ${{ steps.vars.outputs.chdir }} output -raw ingrss_nginx_lb_ip)
         #  echo $ip1
         #  temp=$(terraform ${{ steps.vars.outputs.chdir }} output -json | jq '. | tostring')
         echo temp=$(terraform ${{ steps.vars.outputs.chdir }} output -json) >> $GITHUB_ENV
-        #  echo $temp
+         echo $temp
+        echo "${{ env.temp }}"
+        # echo "::set-output name=json::${{ toJSON(env.temp) }}"
+      shell: bash
+    - name: "set Terraform output"
+      id: output
+      run: |
         echo " ${{ env.temp }}"
          echo "::set-output name=json::${{ toJSON(env.temp) }}"
       shell: bash
