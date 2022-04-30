@@ -60,9 +60,9 @@ jobs:
           TERRAFORM_CH_DIR: "k8s-infra"
       - name: "set ingress_nginx_lb_ip env"
         run: |
-          echo "temp"
+          echo "${{ steps.k8s_infra.outputs.json_output }}"
+          echo "${{ steps.k8s_infra.outputs.json_output.ingrss_nginx_lb_ip }}"
           # terraform -chdir=k8s-infra output -raw ingrss_nginx_lb_ip
-          # echo "json result ${{ steps.k8s_infra.outputs.json_output }}"
           # echo '[{ "name": "test", "client_payload": "111" }, { "name": "test2", "client_payload": "222" }]' | jq '.[].name'
           # # terraform output -raw ingrss_nginx_lb_ip
           # terraform output -raw nsg_common_internet_access_id
@@ -79,5 +79,5 @@ jobs:
           TERRAFORM_ACTIONS: ${{github.event.inputs.actions}}
           TERRAFORM_CH_DIR: "k8s-base-apps"
         env:
-          TF_VAR_nsg_common_internet_access_id: ${{ fromJSON(steps.k8s_infra.outputs.json_output).nsg_common_internet_access_id }}
-          TF_VAR_ingrss_nginx_lb_ip: ${{ fromJSON(steps.k8s_infra.outputs.json_output).ingrss_nginx_lb_ip }}
+          TF_VAR_nsg_common_internet_access_id: ${{ fromJSON(steps.k8s_infra.outputs.json_output).nsg_common_internet_access_id.value }}
+          TF_VAR_ingrss_nginx_lb_ip: ${{ fromJSON(steps.k8s_infra.outputs.json_output).ingrss_nginx_lb_ip.value }}
