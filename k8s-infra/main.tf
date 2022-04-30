@@ -78,7 +78,7 @@ locals {
   command_map = sensitive(substr(local.test, 0, 1) == "/" ? {
     # command     = "oci ce cluster create-kubeconfig --cluster-id ${local.cluster_id} --file ./oci_kube_config.temp --token-version 2.0.0  --kube-endpoint PUBLIC_ENDPOINT",
     command = "ls -al && pwd"
-    intrepreter = "bash"
+    # intrepreter = "bash"
     } : {
     command     = "oci ce cluster create-kubeconfig --cluster-id ${local.cluster_id} --file ./oci_kube_config.temp --region ap-chuncheon-1 --token-version 2.0.0  --kube-endpoint PUBLIC_ENDPOINT"
     intrepreter = "powershell"
