@@ -6,17 +6,17 @@
 #     }
 #   }
 # }
-resource "kubernetes_deployment_v1" "k8s_deployment" {
-  for_each = local.apps # 循环
+resource "kubernetes_deployment_v1" "k8s_deployment_ap123456" {
+  # # for_each = local.apps # 循环
   metadata {
     # name = "docker-hello-world-deployment"
-    name = each.value.deployment_name
+    name = local.deployment_name
 
 
     labels = {
       # app = "docker-hello-world"
-      app   = each.key
-      appid = each.value.appid
+      app   = local.appid
+      appid = local.appid
     }
   }
 
@@ -27,26 +27,29 @@ resource "kubernetes_deployment_v1" "k8s_deployment" {
     selector {
       match_labels = {
         # app = "docker-hello-world"
-        app = each.key
+        app = local.appid
       }
     }
+    # strategy {
+    #   type = "Recreate"
+    # }
 
     template {
       metadata {
         labels = {
           # app = "docker-hello-world"
-          app   = each.key
-          appid = each.value.appid
+          app   = local.appid
+          appid = local.appid
         }
       }
 
       spec {
         container {
-          name  = each.key
-          image = each.value.docker_image
+          name  = local.appid
+          image = local.docker_image
 
           port {
-            container_port = each.value.container_port
+            container_port = local.container_port
           }
           env_from {
             secret_ref {
@@ -54,7 +57,8 @@ resource "kubernetes_deployment_v1" "k8s_deployment" {
             }
           }
         }
-        node_selector = each.value.node_selector
+        node_selector = local.node_selector
+
 
       }
 
@@ -62,35 +66,35 @@ resource "kubernetes_deployment_v1" "k8s_deployment" {
   }
 }
 resource "kubernetes_service_v1" "k8s_svc" {
-  for_each = local.apps # 循环
+  # for_each = local.apps # 循环
   metadata {
-    name = each.value.service_name
+    name = local.service_name
     labels = {
-      appid = each.value.appid
+      appid = local.appid
     }
   }
 
   spec {
     port {
-      port        = each.value.svc_port
-      target_port = each.value.container_port
-      node_port   = each.value.node_port
+      port        = local.svc_port
+      target_port = local.container_port
+      node_port   = local.node_port
     }
 
     selector = {
-      app = each.key
+      app = local.appid
     }
 
     type = "NodePort"
   }
 }
 resource "kubernetes_ingress_v1" "nginx_ingress" {
-  for_each = local.apps # 循环
+  # for_each = local.apps # 循环
   metadata {
-    name      = each.value.ingress_nginx_name
+    name      = local.ingress_nginx_name
     namespace = "default"
     labels = {
-      appid = each.value.appid
+      appid = local.appid
     }
   }
   spec {
@@ -98,13 +102,13 @@ resource "kubernetes_ingress_v1" "nginx_ingress" {
     rule {
       http {
         dynamic "path" { # 循环
-          for_each = each.value.ingress_paths
+          for_each = local.ingress_paths
           content { # content 是关键字，必须有
             backend {
               service {
-                name = try(path.value.service_name, each.value.service_name)
+                name = try(path.value.service_name, local.service_name)
                 port {
-                  number = try(path.value.svc_port, each.value.svc_port)
+                  number = try(path.value.svc_port, local.svc_port)
                 }
               }
             }
