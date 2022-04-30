@@ -44,11 +44,12 @@ runs:
           echo $target
           # echo target=$target >> $GITHUB_ENV
           echo "::set-output name=target::$target"
+          echo " chdir ouput ${{steps.vars.outputs.chdir}} "
       shell: bash
-    - name: "output"
-      run: |
+    # - name: "output"
+    #   run: |
 
-      shell: bash
+    #   shell: bash
     - name: "Init Terraform"
       id: init
       run: |
@@ -81,6 +82,8 @@ runs:
     - name: "set env"
       id: terraform_output
       run: |
+        echo "::add-mask::${{ steps.apply.outputs.stdout }}"
+        echo "::add-mask::${{ steps.apply.outputs.stdout }}"
         temp=$(terraform ${{ steps.vars.outputs.chdir }} output -json)
         # echo $temp
         # echo "::set-output name=json::$temp" # this line has error, because"
