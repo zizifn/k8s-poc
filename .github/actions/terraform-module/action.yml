@@ -83,7 +83,7 @@ runs:
       run: |
         #  ip1=$(terraform ${{ steps.vars.outputs.chdir }} output -raw ingrss_nginx_lb_ip)
         #  echo $ip1
-         temp=$(terraform ${{ steps.vars.outputs.chdir }} output -json)
+         temp=$(terraform ${{ steps.vars.outputs.chdir }} output -json | jq '. | tostring')
         #  echo $temp
-         echo "::set-output name=json::${{fromJSON(temp)}}"
+         echo "::set-output name=json::$temp"
       shell: bash
