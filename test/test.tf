@@ -55,33 +55,44 @@ data "oci_containerengine_cluster_option" "test_cluster_option" {
 
 provider "kubernetes" {
   # config_path = "~/.kube/config"
-  host = "https://146.56.118.29:6443"
-  config_context_auth_info = "kubeconfig-sa"
+  host                     = var.k8s_host
+  config_context_auth_info = var.config_context_auth_info
   # username =
-  token = "***REMOVED***"
-  cluster_ca_certificate = base64decode("***REMOVED***==")
+  token                  = var.service_account_token
+  cluster_ca_certificate = var.cluster_ca_certificate
 }
 
-resource "local_sensitive_file" "foo" {
-    content  = "foo!"
-    filename = "../${path.root}/foo.bar"
-}
-resource "local_sensitive_file" "sa_kube_config" {
-    content  = templatefile("${path.module}/sa_kube_config.tftpl",
-    {
-      host = "test"
-      config_context_auth_info = "test"
-      token = "test"
-      cluster_ca_certificate = "test"
-    })
-    filename = "${path.module}/sa_kube_config"
-}
-
-data "kubernetes_pod_v1" "test" {
+data "kubernetes_service_account_v1" "kubeconfig_sa" {
   metadata {
-    name = "my-ingress-nginx-admission-create--1-vj9zz"
+    name = "kubeconfig-sa"
+    namespace = "kube-system"
   }
 }
+
+output "temp2" {
+    value = data.kubernetes_service_account_v1.kubeconfig_sa.default_secret_name
+    # sensitive = true
+}
+
+# use secret to get token
+data "kubernetes_secret" "kubeconfig_sa_secret" {
+  metadata {
+    name = data.kubernetes_service_account_v1.kubeconfig_sa.default_secret_name
+    namespace = data.kubernetes_service_account_v1.kubeconfig_sa.metadata[0].namespace
+  }
+}
+
+
+output "kubeconfig_sa_secret" {
+    value = data.kubernetes_secret.kubeconfig_sa_secret.data["ca.crt"]
+    sensitive = true
+}
+
+# data "kubernetes_pod_v1" "test" {
+#   metadata {
+#     name = "my-ingress-nginx-admission-create--1-vj9zz"
+#   }
+# }
 # data "oci_core_vcn" "k8s_vcn" {
 #     #Required
 #     vcn_id = var.vcn_id
@@ -130,7 +141,7 @@ data "kubernetes_pod_v1" "test" {
 #   # sensitive = true
 # }
 
-output "testjson" {
-  value = jsondecode(file("${path.module}/sa_kube_config")).cluster_ca_certificate
-}
+# output "testjson" {
+#   value = jsondecode(file("${path.module}/sa_kube_config")).cluster_ca_certificate
+# }
 

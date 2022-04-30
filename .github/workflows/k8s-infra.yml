@@ -6,10 +6,10 @@ on:
         description: "action: plan/apply/destroy"
         default: "apply"
         required: true
-      # trun_k8s_init_app:
-      #   description: "module name, pass ON"
-      #   default: "OFF"
-      #   required: true
+      turn_k8s_base_app:
+        description: "turn_k8s_base_app"
+        default: "OFF"
+        required: true
 defaults:
   run:
     shell: bash
@@ -64,7 +64,7 @@ jobs:
       - name: "setup k8s base apps"
         id: terraform_module
         uses: ./.github/actions/terraform-module
-        if: ${{github.event.inputs.actions != 'plan'}}
+        if: ${{github.event.inputs.turn_k8s_base_app == 'ON'}}
         with:
           TERRAFORM_CLOUD_API_TOKEN: ${{secrets.TERRAFORM_CLOUD_API_TOKEN}}
           TURN_SETUP_TERRAFORM: 'ON'
