@@ -89,7 +89,7 @@ locals {
 resource "null_resource" "setup_kube_config_from_oci" {
   provisioner "local-exec" {
     command     = local.command_map.command
-    interpreter = local.command_map.intrepreter ? [local.command_map.intrepreter] : null
+    interpreter = local.command_map.intrepreter !=null ? [local.command_map.intrepreter] : null
   }
   triggers = {
     always_run = timestamp()
