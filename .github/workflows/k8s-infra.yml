@@ -13,7 +13,7 @@ on:
 defaults:
   run:
     shell: bash
-    working-directory: ./k8s-infra
+    # working-directory: ./k8s-infra
 jobs:
   oci-infra-demo:
     name: Build With Terraform
@@ -32,7 +32,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: "set oci k8s"
+      - name: "set oci and k8s"
         id: oci_cli_k8s
         uses: ./.github/actions/oci-cli-k8s
         with:
@@ -46,7 +46,7 @@ jobs:
       - name: "echo input"
         run: |
           echo "actions: ${{github.event.inputs.actions}}"
-          echo "module: ${{github.event.inputs.module}}"
+          echo "turn_k8s_base_app: ${{github.event.inputs.turn_k8s_base_app}}"
 
       - name: "Terraform setup vcn and infra"
         id: k8s_infra

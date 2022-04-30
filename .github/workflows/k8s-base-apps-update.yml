@@ -6,12 +6,12 @@ on:
         description: "action: apply/destroy"
         default: "apply"
         required: true
-      module:
-        description: "module name, like k8s-app-hello"
-        required: false
-      chdir:
-        description: "chdir, like ./k8s-apps"
-        required: false
+      # module:
+      #   description: "module name, like k8s-app-hello"
+      #   required: false
+      # chdir:
+      #   description: "chdir, like ./k8s-apps"
+      #   required: false
 
 jobs:
   oci-infra-demo:
@@ -33,28 +33,14 @@ jobs:
       - name: "echo input"
         run: |
           echo "actions: ${{github.event.inputs.actions}}"
-          echo "module: ${{github.event.inputs.module}}"
-      - name: "echo input111"
-        run: |
-          echo $chdir
-      - name: "set oci k8s"
-        id: oci_cli_k8s
-        uses: ./.github/actions/oci-cli-k8s
-        with:
-          k8s_config: ${{secrets.OCI_K8S_CONFIG}}
-          user: ${{secrets.OCI_USER_OCID}}
-          fingerprint: ${{secrets.OCI_FINGERPRINT}}
-          region: ${{secrets.OCI_REGION}}
-          tenancy: ${{secrets.OCI_TENANCY_OCID}}
-          key_file: ${{secrets.OCI_KEY_FILE}}
-          pass_phrase: ${{secrets.OCI_PASSPHRASE}}
+          # echo "module: ${{github.event.inputs.module}}"
 
-      - name: "Terraform module"
-        id: terraform_module
+      - name: "k8s base apps update"
+        id: k8s_base_app
         uses: ./.github/actions/terraform-module
         with:
           TERRAFORM_CLOUD_API_TOKEN: ${{secrets.TERRAFORM_CLOUD_API_TOKEN}}
           TURN_SETUP_TERRAFORM: 'ON'
           TERRAFORM_ACTIONS: ${{github.event.inputs.actions}}
-          TERRAFORM_MODULE: ${{github.event.inputs.module}}
-          TERRAFORM_CH_DIR: ${{github.event.inputs.chdir}}
+          # TERRAFORM_MODULE: ${{github.event.inputs.module}}
+          TERRAFORM_CH_DIR: "k8s-base-apps"

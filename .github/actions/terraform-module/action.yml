@@ -30,6 +30,7 @@ runs:
       if: ${{ inputs.TURN_SETUP_TERRAFORM == 'ON'}}
       with:
         cli_config_credentials_token: ${{ inputs.TERRAFORM_CLOUD_API_TOKEN }}
+        terraform_version: 1.1.9
     - name: "setup env and parm"
       run: |
           echo "TERRAFORM_CH_DIR: ${{inputs.TERRAFORM_CH_DIR}}"
