@@ -60,10 +60,12 @@ jobs:
           TERRAFORM_CH_DIR: "k8s-infra"
       - name: "set ingress_nginx_lb_ip env"
         run: |
-          terraform output -raw ingrss_nginx_lb_ip
-          terraform output -raw nsg_common_internet_access_id
-          TF_VAR_ingrss_nginx_lb_ip=(terraform output -raw ingrss_nginx_lb_ip) >> $GITHUB_ENV
-          TF_VAR_nsg_common_internet_access_id=(terraform output -raw nsg_common_internet_access_id) >> $GITHUB_ENV
+          echo "json result ${{ steps.k8s_infra.outputs.json_output }}"
+          echo '[{ "name": "test", "client_payload": "111" }, { "name": "test2", "client_payload": "222" }]' | jq '.[].name'
+          # terraform output -raw ingrss_nginx_lb_ip
+          # terraform output -raw nsg_common_internet_access_id
+          # TF_VAR_ingrss_nginx_lb_ip=(terraform output -raw ingrss_nginx_lb_ip) >> $GITHUB_ENV
+          # TF_VAR_nsg_common_internet_access_id=(terraform output -raw nsg_common_internet_access_id) >> $GITHUB_ENV
         shell: bash
       - name: "setup k8s base apps"
         id: k8s_base_app
