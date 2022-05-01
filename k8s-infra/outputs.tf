@@ -5,5 +5,5 @@ output "ingrss_nginx_lb_ip" {
 
 output "nsg_common_internet_access_id" {
   value = module.k8s-vcn-infra.nsg_common_internet_access_id
-  # sensitive = true
+  sensitive = true
 }
