@@ -18,6 +18,10 @@ inputs:
     description: "TERRAFORM_CH_DIR name"
     required: false
     default: "/"
+  TURN_TF_MASK:
+    description: "TERRAFORM_CH_DIR name"
+    required: false
+    default: "ON"
 
 outputs:
   json_output:
@@ -36,9 +40,15 @@ runs:
     - name: "setup env and parm"
       id: vars
       run: |
-          echo TFMASK_CHAR="#" >> $GITHUB_ENV
-          echo TFMASK_VALUES_REGEX="(?i)^.*[^a-zA-Z](oauth|secret|token|password|key|result|id).*$" >> $GITHUB_ENV
-          echo TFMASK_RESOURCES_REGEX="(?i)^(id|local_file).*$"
+          if [[ ${{ inputs.TERRAFORM_CH_DIR == 'OFF'}} ]]; then
+            echo "skip tf mask"
+          else
+            echo "enable tf mask"
+            echo TFMASK_CHAR="#" >> $GITHUB_ENV
+            echo TFMASK_VALUES_REGEX="(?i)^.*[^a-zA-Z](oauth|secret|token|password|key|result|id).*$" >> $GITHUB_ENV
+            echo TFMASK_RESOURCES_REGEX="(?i)^.*[^a-zA-Z](id|local_file|null_resource).*$"  >> $GITHUB_ENV
+          fi
+
           echo "TERRAFORM_CH_DIR: ${{inputs.TERRAFORM_CH_DIR}}"
           echo "TERRAFORM_MODULE: ${{inputs.TERRAFORM_MODULE}}"
           if [[ "${{ inputs.TERRAFORM_CH_DIR}}" ]]; then chdir="-chdir=${{ inputs.TERRAFORM_CH_DIR }}"; else echo "no TERRAFORM_CH_DIR"; fi
