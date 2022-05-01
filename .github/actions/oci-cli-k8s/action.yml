@@ -64,7 +64,7 @@ runs:
     - name: " install tfmask & direnv"
       run: |
         sudo apt install direnv
-        sudo curl https://github.com/cloudposse/tfmask/releases/download/0.7.0/tfmask_linux_amd64 --output /home/runner/bin/tfmask
+        curl https://github.com/cloudposse/tfmask/releases/download/0.7.0/tfmask_linux_amd64 --output /home/runner/bin/tfmask
         chmod +x /home/runner/bin/tfmask
         # echo ~/tfmask/tfmask >> $GITHUB_PATH
         # ls ~/tfmask -al
