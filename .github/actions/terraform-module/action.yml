@@ -45,7 +45,7 @@ runs:
           else
             echo "enable tf mask"
             echo TFMASK_CHAR="#" >> $GITHUB_ENV
-            echo TFMASK_VALUES_REGEX="(?i)^.*[^a-zA-Z](oauth|secret|token|password|key|result|id).*$" >> $GITHUB_ENV
+            echo TFMASK_VALUES_REGEX="(?i)^.*[^a-zA-Z](oauth|secret|token|password|key|result|id|cert|certificate).*$" >> $GITHUB_ENV
             echo TFMASK_RESOURCES_REGEX="(?i)^.*[^a-zA-Z](id|local_file|null_resource).*$"  >> $GITHUB_ENV
           fi
 
