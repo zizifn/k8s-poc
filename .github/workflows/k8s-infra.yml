@@ -11,7 +11,7 @@ on:
         default: "OFF"
         required: true
       TURN_TF_MASK:
-        description: "TERRAFORM_CH_DIR name"
+        description: "TURN_TF_MASK name"
         required: true
         default: "ON"
 defaults:
