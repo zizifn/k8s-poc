@@ -35,7 +35,7 @@ runs:
     - name: "setup env and parm"
       id: vars
       run: |
-          tfmask
+          direnv allow .
           echo "TERRAFORM_CH_DIR: ${{inputs.TERRAFORM_CH_DIR}}"
           echo "TERRAFORM_MODULE: ${{inputs.TERRAFORM_MODULE}}"
           if [[ "${{ inputs.TERRAFORM_CH_DIR}}" ]]; then chdir="-chdir=${{ inputs.TERRAFORM_CH_DIR }}"; else echo "no TERRAFORM_CH_DIR"; fi
@@ -68,19 +68,19 @@ runs:
       id: plan
       if: ${{ inputs.TERRAFORM_ACTIONS != 'destroy'}}
       run: |
-        terraform ${{ steps.vars.outputs.chdir }} plan ${{ steps.vars.outputs.target }} -input=false -out result
+        terraform ${{ steps.vars.outputs.chdir }} plan ${{ steps.vars.outputs.target }} -input=false -no-color -out result | tfmask
       shell: bash
 
     - name: "Terraform destroy Plan"
       id: destroy-plan
       if: ${{  inputs.TERRAFORM_ACTIONS == 'destroy'}}
-      run: terraform ${{ steps.vars.outputs.chdir }} plan -destroy ${{ steps.vars.outputs.target }} -input=false -out result
+      run: terraform ${{ steps.vars.outputs.chdir }} plan -destroy ${{ steps.vars.outputs.target }} -input=false -no-color -out result | tfmask
       shell: bash
 
     - name: "Terraform Apply"
       id: apply
       if: ${{ inputs.TERRAFORM_ACTIONS != 'plan'}}
-      run: terraform ${{ steps.vars.outputs.chdir }} apply result
+      run: terraform ${{ steps.vars.outputs.chdir }} apply -no-color result | tfmask
       shell: bash
 
       # change to terraform-bin https://github.com/hashicorp/setup-terraform/issues/20#issuecomment-723853380
