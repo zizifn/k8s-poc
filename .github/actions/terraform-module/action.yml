@@ -40,7 +40,7 @@ runs:
     - name: "setup env and parm"
       id: vars
       run: |
-          if [[ ${{ inputs.TERRAFORM_CH_DIR == 'OFF'}} ]]; then
+          if [[ ${{ inputs.TURN_TF_MASK}} == 'OFF' ]]; then
             echo "skip tf mask"
           else
             echo "enable tf mask"
