@@ -35,7 +35,7 @@ runs:
     - name: "setup env and parm"
       id: vars
       run: |
-          tfmask
+          ~/tfmask/tfmask
           echo "TERRAFORM_CH_DIR: ${{inputs.TERRAFORM_CH_DIR}}"
           echo "TERRAFORM_MODULE: ${{inputs.TERRAFORM_MODULE}}"
           if [[ "${{ inputs.TERRAFORM_CH_DIR}}" ]]; then chdir="-chdir=${{ inputs.TERRAFORM_CH_DIR }}"; else echo "no TERRAFORM_CH_DIR"; fi
