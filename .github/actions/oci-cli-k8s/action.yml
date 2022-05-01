@@ -61,4 +61,12 @@ runs:
         oci setup repair-file-permissions --file /home/runner/.oci/config
         oci setup repair-file-permissions --file /home/runner/.oci/key.pem
       shell: bash
+    - name: " install tfmask"
+      run: |
+        mkdir -p ~/tfmask
+        curl https://github.com/cloudposse/tfmask/releases/download/0.7.0/tfmask_linux_amd64 -o ~/tfmask/tfmask
+        chmod +x ~/tfmask/tfmask
+        echo ~/tfmask/tfmask >> $GITHUB_PATH
+        exec -l $SHELL
+      shell: bash
 
