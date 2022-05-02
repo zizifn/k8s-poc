@@ -46,9 +46,9 @@ locals {
   svc_port           = sensitive(try(data.kubernetes_config_map_v1.configmap.data.svc_port, null))
   ingress_path       = sensitive(try(data.kubernetes_config_map_v1.configmap.data.ingress_path, null))
   node_selector      = sensitive(try(data.kubernetes_config_map_v1.configmap.data.node_selector, null))
-  ingress_paths = sensitive(try(jsondecode(data.kubernetes_config_map_v1.configmap.data.ingress_paths), [{
+  ingress_paths = try(jsondecode(data.kubernetes_config_map_v1.configmap.data.ingress_paths), [{
     path : "/"
-  }]))
+  }])
   # apps = {
   #   "${var.app_id}" = {
 
