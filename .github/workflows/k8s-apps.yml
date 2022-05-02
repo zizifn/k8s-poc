@@ -38,7 +38,7 @@ jobs:
           echo "TURN_TF_MASK: ${{github.event.inputs.TURN_TF_MASK}}"
       - name: "destroy app"
         if: ${{ github.event.inputs.actions == 'apply' && github.event.inputs.TURN_FORCE_UPDATE == 'ON' && github.event.inputs.module}}
-        id: terraform_module
+        id: destroy_app
         uses: ./.github/actions/terraform-module
         with:
           TERRAFORM_CLOUD_API_TOKEN: ${{secrets.TERRAFORM_CLOUD_API_TOKEN}}
