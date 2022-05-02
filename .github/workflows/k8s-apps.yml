@@ -32,7 +32,7 @@ jobs:
           echo "actions: ${{github.event.inputs.actions}}"
           echo "module: ${{github.event.inputs.module}}"
           echo "TURN_TF_MASK: ${{github.event.inputs.TURN_TF_MASK}}"
-      - name: "Terraform module"
+      - name: "Install k8s apps"
         id: terraform_module
         uses: ./.github/actions/terraform-module
         with:
