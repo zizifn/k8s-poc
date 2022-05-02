@@ -108,6 +108,9 @@ runs:
         temp=$(terraform-bin ${{ steps.vars.outputs.chdir }} output -json)
         # echo $temp
         # echo "::set-output name=json::$temp" # this line has error, because"
-        echo ::add-mask::$temp
+        outputValues=$(echo $temp | jq -r '.[]|.value')
+        for i in $outputValues; do
+          echo ::add-mask::$i
+        done
         echo ::set-output name=json::$temp
       shell: bash
