@@ -7,11 +7,11 @@ on:
         default: "plan"
         required: true
       turn_k8s_base_app:
-        description: "turn_k8s_base_app"
+        description: "turn_k8s_base_app OFF/ON"
         default: "OFF"
         required: true
       TURN_TF_MASK:
-        description: "TURN_TF_MASK name"
+        description: "TURN_TF_MASK name OFF/ON"
         required: true
         default: "ON"
 defaults:
@@ -42,6 +42,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: "set oci and k8s"
+        if: ${{github.event.inputs.turn_k8s_base_app == 'ON'}}
         id: oci_cli_k8s
         uses: ./.github/actions/oci-cli-k8s
         with:

@@ -9,11 +9,11 @@ variable "local" {
   default = false
 }
 
-variable "use_oci_kub_conf_file" {
-  type = bool
-  description = "local"
-  default = false
-}
+# variable "use_oci_kub_conf_file" {
+#   type = bool
+#   description = "local"
+#   default = false
+# }
 variable "k8s_host" {
   type        = string
   description = "k8s_host"

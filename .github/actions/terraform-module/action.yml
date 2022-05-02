@@ -31,6 +31,11 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: " install tfmask"
+      run: |
+        curl -L https://github.com/cloudposse/tfmask/releases/download/0.7.0/tfmask_linux_amd64 --output /home/runner/bin/tfmask
+        chmod +x /home/runner/bin/tfmask
+      shell: bash
     - uses: hashicorp/setup-terraform@v1
       if: ${{ inputs.TURN_SETUP_TERRAFORM == 'ON'}}
       with:
