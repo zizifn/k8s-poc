@@ -4,8 +4,8 @@
 #   default = 8081
 # }
 
-# variable "app_name" {
-#   type        = string
-#   description = "app_name"
-#   default = "value"
-# }
+variable "force_update" {
+  type        = bool
+  description = "app_name"
+  default = false
+}

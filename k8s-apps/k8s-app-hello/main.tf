@@ -19,8 +19,6 @@ resource "kubernetes_deployment_v1" "k8s_deployment_ap123456" {
   metadata {
     # name = "docker-hello-world-deployment"
     name = local.deployment_name
-
-
     labels = {
       # app = "docker-hello-world"
       app   = local.appid
@@ -66,10 +64,7 @@ resource "kubernetes_deployment_v1" "k8s_deployment_ap123456" {
           }
         }
         node_selector = local.node_selector
-
-
       }
-
     }
   }
 
@@ -77,6 +72,7 @@ resource "kubernetes_deployment_v1" "k8s_deployment_ap123456" {
     kubernetes_secret_v1.secret_ap123456
   ]
 }
+
 resource "kubernetes_service_v1" "k8s_svc" {
   # for_each = local.apps # 循环
   metadata {
