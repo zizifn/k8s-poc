@@ -26,7 +26,7 @@ terraform {
 }
 
 provider "kubernetes" {
-    config_path              = var.use_oci_kub_conf_file ? "../oci_kube_config.temp" : null
+    config_path              = fileexists("../oci_kube_config.temp") ? "../oci_kube_config.temp" : null
     host                     = var.k8s_host
     config_context_auth_info = var.config_context_auth_info
     # username =
@@ -36,7 +36,7 @@ provider "kubernetes" {
 
 provider "helm" {
   kubernetes {
-    config_path              = var.use_oci_kub_conf_file ? "../oci_kube_config.temp" : null
+    config_path              = fileexists("../oci_kube_config.temp") ? "../oci_kube_config.temp" : null
     host                     = var.k8s_host
     config_context_auth_info = var.config_context_auth_info
     # username =
