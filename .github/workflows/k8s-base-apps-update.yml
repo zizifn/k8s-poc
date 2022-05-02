@@ -14,7 +14,7 @@ on:
         required: true
         default: "ON"
 jobs:
-  oci-infra-demo:
+  k8s-bse-apps-update:
     name: Build With Terraform
     runs-on: ubuntu-latest
     env:
@@ -22,8 +22,8 @@ jobs:
       TF_VAR_config_context_auth_info: ${{secrets.K8S_CONFIG_CONTEXT_AUTH_INFO}}
       TF_VAR_k8s_host: ${{secrets.K8S_HOST}}
       TF_VAR_service_account_token: ${{secrets.K8S_SERVICE_ACCOUNT_TOKEN}}
-      TF_VAR_nsg_common_internet_access_id: ${{ fromJSON(steps.k8s_infra.outputs.json_output).nsg_common_internet_access_id.value }}
-      TF_VAR_ingrss_nginx_lb_ip: ${{ fromJSON(steps.k8s_infra.outputs.json_output).ingrss_nginx_lb_ip.value }}
+      TF_VAR_nsg_common_internet_access_id: ${{ secrets.K8S_NSG_COMMON_INTERNET_ACCESS_ID }}
+      TF_VAR_ingrss_nginx_lb_ip: ${{ secrets.K8S_INGRSS_NGINX_LB_IP }}
       TURN_TF_MASK: ${{github.event.inputs.TURN_TF_MASK}}
     steps:
       - uses: actions/checkout@v2
