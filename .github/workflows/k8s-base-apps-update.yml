@@ -3,8 +3,8 @@ on:
   workflow_dispatch:
     inputs:
       actions:
-        description: "action: apply/destroy"
-        default: "apply"
+        description: "action: plan/apply/destroy"
+        default: "plan"
         required: true
       # module:
       #   description: "module name, like k8s-app-hello"
@@ -15,7 +15,7 @@ on:
         default: "ON"
 jobs:
   k8s-bse-apps-update:
-    name: Build With Terraform
+    name: "k8s base app update"
     runs-on: ubuntu-latest
     env:
       TF_VAR_cluster_ca_certificate: ${{secrets.K8S_CLUSTER_CA_CERTIFICATE}}
