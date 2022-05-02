@@ -1,11 +1,19 @@
-# terraform {
-#   required_providers {
-#     oci = {
-#       source  = "oracle/oci"
-#       version = "~> 4.72.0"
-#     }
-#   }
-# }
+resource "kubernetes_secret_v1" "secret_ap123456" {
+  metadata {
+    name = "ap123456"
+  }
+
+  data = {
+    testvar = "test111"
+    testfile     = "${file("${path.module}/data/test.txt")}"
+    testjson = jsonencode({
+      test1 = 333444 # can use hcl syntax
+    }) # eyJ0ZXN0MSI6MzMzfQ==
+  }
+  # immutable = true  如果设置了这个，需要整个deploment 删除，然后重新创建
+  type = "Opaque"
+}
+
 resource "kubernetes_deployment_v1" "k8s_deployment_ap123456" {
   # # for_each = local.apps # 循环
   metadata {
@@ -64,6 +72,10 @@ resource "kubernetes_deployment_v1" "k8s_deployment_ap123456" {
 
     }
   }
+
+  depends_on = [
+    kubernetes_secret_v1.secret_ap123456
+  ]
 }
 resource "kubernetes_service_v1" "k8s_svc" {
   # for_each = local.apps # 循环
