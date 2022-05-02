@@ -53,6 +53,7 @@ resource "kubernetes_deployment_v1" "k8s_deployment_ap123456" {
         container {
           name  = local.appid
           image = local.docker_image
+          image_pull_policy = "Always"
 
           port {
             container_port = local.container_port
