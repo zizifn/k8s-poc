@@ -82,3 +82,21 @@ resource "oci_core_network_security_group_security_rule" "egress_443_network_sec
   }
 }
 
+resource "oci_core_network_security_group_security_rule" "egress_53_network_security_group_security_rule" {
+  #Required
+  network_security_group_id = oci_core_network_security_group.nsg_private_internet_access.id
+  direction                 = "EGRESS"
+  protocol                  = "6"
+  #Optional
+  description = "dns 53"
+  destination = "0.0.0.0/0"
+  destination_type = "CIDR_BLOCK"
+  stateless   = false
+  tcp_options {
+    destination_port_range {
+      max = 53
+      min = 53
+    }
+  }
+}
+
