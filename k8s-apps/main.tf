@@ -31,7 +31,7 @@ provider "kubernetes" {
   config_context_auth_info = var.config_context_auth_info
   # username =
   token                  = var.service_account_token
-  cluster_ca_certificate = var.cluster_ca_certificate
+  cluster_ca_certificate = try(base64decode(var.cluster_ca_certificate), null)
 }
 
 module "k8s-secrets" {
