@@ -1,4 +1,4 @@
-name: k8s-bse-apps-update
+name: k8s-base-apps-update
 on:
   workflow_dispatch:
     inputs:
