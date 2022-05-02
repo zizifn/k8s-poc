@@ -20,8 +20,8 @@ defaults:
     # working-directory: ./k8s-infra
 
 jobs:
-  oci-infra-demo:
-    name: Build With Terraform
+  oci-k8s-infra:
+    name: "oci-infra"
     runs-on: ubuntu-latest
     env:
       TF_VAR_tenancy_ocid: ${{secrets.OCI_TENANCY_OCID}}
