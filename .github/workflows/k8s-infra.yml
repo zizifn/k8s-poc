@@ -70,9 +70,11 @@ jobs:
           TERRAFORM_CH_DIR: "k8s-infra"
           TURN_TF_MASK: ${{github.event.inputs.TURN_TF_MASK}}
 
-      - name: "output"
+      - name: "add mask"
         run: |
             echo "ddd"
+            echo ::add-mask::${{ fromJSON(steps.k8s_infra.outputs.json_output).nsg_common_internet_access_id.value }}
+            echo ::add-mask::${{ fromJSON(steps.k8s_infra.outputs.json_output).ingrss_nginx_lb_ip.value }}
         shell: bash
       # - name: "output"
       #   run: |
