@@ -25,17 +25,27 @@ terraform {
   }
 }
 
+provider "kubernetes" {
+    config_path              = var.use_oci_kub_conf_file ? "../oci_kube_config.temp" : null
+    host                     = var.k8s_host
+    config_context_auth_info = var.config_context_auth_info
+    # username =
+    token                  = var.service_account_token
+    cluster_ca_certificate = try(base64decode(var.cluster_ca_certificate), null)
+}
 
 provider "helm" {
   kubernetes {
-    config_path = "../oci_kube_config.temp"
+    config_path              = var.use_oci_kub_conf_file ? "../oci_kube_config.temp" : null
+    host                     = var.k8s_host
+    config_context_auth_info = var.config_context_auth_info
+    # username =
+    token                  = var.service_account_token
+    cluster_ca_certificate = try(base64decode(var.cluster_ca_certificate), null)
   }
   debug = true
 }
 
-provider "kubernetes" {
-  config_path = "../oci_kube_config.temp"
-}
 
 module "k8s-auth-token" {
   source = "./modules/k8s-auth-token"
@@ -51,7 +61,7 @@ resource "local_sensitive_file" "sa_kube_config" {
       host                     = ""
       config_context_auth_info = "kubeconfig-sa"
       token                    = module.k8s-auth-token.kubeconfig_sa_secret.data.token
-      cluster_ca_certificate   = module.k8s-auth-token.kubeconfig_sa_secret.data["ca.crt"]
+      cluster_ca_certificate   = base64encode(module.k8s-auth-token.kubeconfig_sa_secret.data["ca.crt"])
   })
   filename = "../${path.module}/sa_kube_config.temp"
   depends_on = [

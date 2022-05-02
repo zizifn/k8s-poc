@@ -14,11 +14,31 @@ variable "use_oci_kub_conf_file" {
   description = "local"
   default = false
 }
+variable "k8s_host" {
+  type        = string
+  description = "k8s_host"
+  default = null
+}
 
-variable "use" {
-  type = bool
-  description = "local"
-  default = false
+variable "config_context_auth_info" {
+  type        = string
+  description = "config_context_auth_info"
+  default = null
+
+}
+
+variable "service_account_token" {
+  type        = string
+  description = "service_account_token"
+  default = null
+
+}
+
+variable "cluster_ca_certificate" {
+  type        = string
+  description = "cluster_ca_certificate_base64"
+  default = null
+
 }
 
 variable "ingrss_nginx_lb_ip" {

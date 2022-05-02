@@ -9,24 +9,19 @@ on:
       # module:
       #   description: "module name, like k8s-app-hello"
       #   required: false
-      # chdir:
-      #   description: "chdir, like ./k8s-apps"
-      #   required: false
-
+      TURN_TF_MASK:
+        description: "TURN_TF_MASK name"
+        required: true
+        default: "ON"
 jobs:
   oci-infra-demo:
     name: Build With Terraform
     runs-on: ubuntu-latest
     env:
-      TF_VAR_tenancy_ocid: ${{secrets.OCI_TENANCY_OCID}}
-      TF_VAR_compartment_ocid: ${{secrets.OCI_COMPARTMENT_OCID}}
-      TF_VAR_user_ocid: ${{secrets.OCI_USER_OCID}}
-      TF_VAR_private_key_password: ${{secrets.OCI_PASSPHRASE}}
-      TF_VAR_private_key: ${{secrets.OCI_KEY_FILE}}
-      TF_VAR_fingerprint: ${{secrets.OCI_FINGERPRINT}}
-      TF_VAR_region: ${{secrets.OCI_REGION}}
-      TF_VAR_ingrss_nginx_lb_ip: ${{secrets.OCI_K8S_INGRSS_NGINX_LB_IP}}
-      OCI_K8S_CONFIG: ${{secrets.OCI_K8S_CONFIG}}
+      TF_VAR_cluster_ca_certificate: ${{secrets.K8S_CLUSTER_CA_CERTIFICATE}}
+      TF_VAR_config_context_auth_info: ${{secrets.K8S_CONFIG_CONTEXT_AUTH_INFO}}
+      TF_VAR_k8s_host: ${{secrets.K8S_HOST}}
+      TF_VAR_service_account_token: ${{secrets.K8S_SERVICE_ACCOUNT_TOKEN}}
 
     steps:
       - uses: actions/checkout@v2
@@ -44,3 +39,4 @@ jobs:
           TERRAFORM_ACTIONS: ${{github.event.inputs.actions}}
           # TERRAFORM_MODULE: ${{github.event.inputs.module}}
           TERRAFORM_CH_DIR: "k8s-base-apps"
+          TURN_TF_MASK: ${{github.event.inputs.TURN_TF_MASK}}
