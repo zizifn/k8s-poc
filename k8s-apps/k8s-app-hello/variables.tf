@@ -1,37 +1,13 @@
-# variable "port" {
-#   type        = number
-#   description = "port"
-#   default     = 8082
-# }
-
-# variable "app_id" {
-#   type        = string
-#   description = "app_id"
-#   default     = "ap123456"
-# }
-
-# variable "app_env" {
-#   type        = string
-#   description = "app_name"
-#   default     = "value"
-# }
-
-# variable "portmaps" {
-#   default = [
-#     {
-#       name   = "derp"
-#       number = 1
-#     },
-#     {
-#       name   = "test"
-#       number = 2
-#     },
-#   ]
-# }
 data "kubernetes_config_map_v1" "configmap" {
   metadata {
     name = "ap123456"
   }
+}
+
+variable "force_update" {
+  type        = bool
+  description = "app_name"
+  default = true
 }
 
 locals {

@@ -26,7 +26,7 @@ resource "kubernetes_config_map_v1" "config_map_ap123456" {
     ingress_paths = jsonencode(
       [
         {
-          path         = "/",
+          path         = "/gtw/hello",
           service_name = "ap123456-docker-hello-world-svc", # "${var.app_id}-${local.app_name}-svc"
           # svc_port = 80 # 可以没有
         }

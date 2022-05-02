@@ -3,6 +3,7 @@
 #     description = "kube_config_base64"
 # }
 
+
 variable "k8s_host" {
   type        = string
   description = "k8s_host"

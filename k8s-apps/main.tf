@@ -34,9 +34,9 @@ provider "kubernetes" {
   cluster_ca_certificate = try(base64decode(var.cluster_ca_certificate), null)
 }
 
-# module "k8s-secrets" {
-#   source = "./k8s-secrets"
-# }
+module "k8s-secrets" {
+  source = "./k8s-secrets"
+}
 
 module "k8s-app-config-map" {
   source = "./k8s-app-config-map"
@@ -47,4 +47,10 @@ module "k8s-app-hello" {
   depends_on = [
     module.k8s-app-config-map
   ]
+}
+
+# move history for state
+moved {
+  from = module.k8s-secrets.kubernetes_secret_v1.secret_ap123456
+  to   =  module.k8s-app-hello.kubernetes_secret_v1.secret_ap123456
 }
