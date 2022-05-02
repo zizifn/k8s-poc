@@ -22,7 +22,9 @@ jobs:
       TF_VAR_config_context_auth_info: ${{secrets.K8S_CONFIG_CONTEXT_AUTH_INFO}}
       TF_VAR_k8s_host: ${{secrets.K8S_HOST}}
       TF_VAR_service_account_token: ${{secrets.K8S_SERVICE_ACCOUNT_TOKEN}}
-
+      TF_VAR_nsg_common_internet_access_id: ${{ fromJSON(steps.k8s_infra.outputs.json_output).nsg_common_internet_access_id.value }}
+      TF_VAR_ingrss_nginx_lb_ip: ${{ fromJSON(steps.k8s_infra.outputs.json_output).ingrss_nginx_lb_ip.value }}
+      TURN_TF_MASK: ${{github.event.inputs.TURN_TF_MASK}}
     steps:
       - uses: actions/checkout@v2
       - name: "echo input"
@@ -39,4 +41,3 @@ jobs:
           TERRAFORM_ACTIONS: ${{github.event.inputs.actions}}
           # TERRAFORM_MODULE: ${{github.event.inputs.module}}
           TERRAFORM_CH_DIR: "k8s-base-apps"
-          TURN_TF_MASK: ${{github.event.inputs.TURN_TF_MASK}}
