@@ -23,6 +23,8 @@ jobs:
       TF_VAR_private_key: ${{secrets.OCI_KEY_FILE}}
       TF_VAR_fingerprint: ${{secrets.OCI_FINGERPRINT}}
       TF_VAR_region: ${{secrets.OCI_REGION}}
+      TF_VAR_cloudflare_api_token: ${{secrets.K8S_CLOUDFLARE_API_TOKEN}}
+      TF_VAR_letsencrypt_email: ${{secrets.K8S_LETSENCRYPT_EMAIL}}
       TF_VAR_nsg_common_internet_access_id: ${{ secrets.K8S_NSG_COMMON_INTERNET_ACCESS_ID }}
       TF_VAR_ingrss_nginx_lb_ip: ${{ secrets.K8S_INGRSS_NGINX_LB_IP }}
 
