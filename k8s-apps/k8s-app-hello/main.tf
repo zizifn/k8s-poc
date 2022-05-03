@@ -108,7 +108,12 @@ resource "kubernetes_ingress_v1" "nginx_ingress" {
   }
   spec {
     ingress_class_name = "nginx"
+    tls {
+      hosts = ["*.zizi.press"]
+      secret_name = "zizi-press-tls"
+    }
     rule {
+      host = "k8s.zizi.press"
       http {
         dynamic "path" { # 循环
           for_each = local.ingress_paths
