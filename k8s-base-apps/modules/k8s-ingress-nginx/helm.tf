@@ -8,6 +8,11 @@ resource "helm_release" "ingress-nginx" {
     "${file("${path.module}/values.yaml")}"
   ]
 
+ set {
+    name  = "controller.extraArgs.default-ssl-certificate"
+    value = "default/zizi-press-tls"
+  }
+
   set {
     name  = "controller.service.loadBalancerIP"
     value = var.ingrss_nginx_lb_ip

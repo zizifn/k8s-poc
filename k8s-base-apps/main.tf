@@ -72,12 +72,34 @@ resource "local_sensitive_file" "sa_kube_config" {
     module.k8s-auth-token
   ]
 }
+module "k8s-cert-manager-crds" {
+  source = "./modules/k8s-cert-manager-crds"
+}
 
+module "k8s-cert-manager" {
+  source = "./modules/k8s-cert-manager"
+  depends_on = [
+    module.k8s-cert-manager-crds
+  ]
+}
+
+module "k8s-cert-issuer" {
+  source = "./modules/k8s-cert-issuer"
+  cloudflare_api_token = var.cloudflare_api_token
+  letsencrypt_email = var.letsencrypt_email
+  depends_on = [
+    module.k8s-cert-manager
+  ]
+}
 
 module "k8s-ingress-nginx" {
   source             = "./modules/k8s-ingress-nginx"
   lb_nsg_id          = var.nsg_common_internet_access_id
   ingrss_nginx_lb_ip = var.ingrss_nginx_lb_ip
+
+  depends_on = [
+    module.k8s-cert-issuer
+  ]
 }
 
 

@@ -9,11 +9,16 @@ variable "local" {
   default = false
 }
 
-# variable "use_oci_kub_conf_file" {
-#   type = bool
-#   description = "local"
-#   default = false
-# }
+variable "cloudflare_api_token" {
+  type        = string
+  description = "cloudflare_api_token"
+}
+
+variable "letsencrypt_email" {
+  type        = string
+  description = "letsencrypt email"
+}
+
 variable "k8s_host" {
   type        = string
   description = "k8s_host"
