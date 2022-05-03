@@ -22,6 +22,8 @@ jobs:
       TF_VAR_config_context_auth_info: ${{secrets.K8S_CONFIG_CONTEXT_AUTH_INFO}}
       TF_VAR_k8s_host: ${{secrets.K8S_HOST}}
       TF_VAR_service_account_token: ${{secrets.K8S_SERVICE_ACCOUNT_TOKEN}}
+      TF_VAR_cloudflare_api_token: ${{secrets.K8S_CLOUDFLARE_API_TOKEN}}
+      TF_VAR_letsencrypt_email: ${{secrets.K8S_LETSENCRYPT_EMAIL}}
       TF_VAR_nsg_common_internet_access_id: ${{ secrets.K8S_NSG_COMMON_INTERNET_ACCESS_ID }}
       TF_VAR_ingrss_nginx_lb_ip: ${{ secrets.K8S_INGRSS_NGINX_LB_IP }}
     steps:
