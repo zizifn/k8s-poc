@@ -1,6 +1,6 @@
-# 基于 OCI 的 kubernetes
+# 基于 OCI 的 kubernetes 的搭建
 
-使用 Terraform 在 oracle cloud 上搭建 kubernetes。 这是一个基本完备的的 poc。包含基础设施的搭建，已经各个应该如何管理。
+使用 Terraform 在 oracle cloud 上搭建 kubernetes。 这是一个基本完备的 poc。完整的基础设施和 APP 的 CICD pipeline。
 
 示例 app https://k8s.zizi.press/gtw/hello
 
