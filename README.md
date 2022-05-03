@@ -13,8 +13,8 @@
 这个是为了搭建 K8S 的基础设施。这个一共有三个模块
 | Name              | Description                                |
 | ----------------- | ------------------------------------------ |
-| k8s-vcn-infra     | 包含虚拟网络，子网划分，security group, gateway, route table|
-| k8s-cluster     | kubernetes 搭建， load balancer以及security group|
+| k8s-vcn-infra     | 包含虚拟网络，子网划分，security group, gateway, route table etc|
+| k8s-cluster     | kubernetes 搭建， load balancer以及security group etc|
 | tags    | 一些用户管理的tag|
 
 ### k8s-base-apps
@@ -22,7 +22,7 @@
 这个搭建基础的 kubernetes 应用。
 | Name              | Description                                |
 | ----------------- | ------------------------------------------ |
-| k8s-cert-manager     | 利用 lets encrypt 实现正式的自动签发 |
+| k8s-cert-manager     | 利用 lets encrypt 实现TLS证书的自动签发 |
 | k8s-ingress-nginx     | ingress nginx |
 | k8s-auth-token     | 基于rbac 创建 kubernetes account |
 
