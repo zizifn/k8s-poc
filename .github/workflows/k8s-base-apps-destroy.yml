@@ -1,4 +1,4 @@
-name: k8s-base-apps-destroy
+name: z-k8s-base-apps-destroy
 on:
   workflow_dispatch:
     inputs:

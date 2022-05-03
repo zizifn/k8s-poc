@@ -1,4 +1,4 @@
-name: oci-k8s-apps
+name: k8s-apps
 on:
   workflow_dispatch:
     inputs:
