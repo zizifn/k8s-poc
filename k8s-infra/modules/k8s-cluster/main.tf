@@ -72,7 +72,7 @@ resource "oci_containerengine_cluster" "k8s_cluster" {
     is_public_ip_enabled = true
     # https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengnetworkconfig.htm#subnetconfig
     subnet_id = var.k8s_vcn_api_public_subnet_id
-    nsg_ids   = data.oci_core_network_security_groups.internet_access_network_security_groups_temp.network_security_groups[*].id
+    nsg_ids   = data.oci_core_network_security_groups.internet_access_network_security_groups.network_security_groups[*].id
   }
 
   options {
