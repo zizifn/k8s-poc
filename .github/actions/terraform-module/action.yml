@@ -100,7 +100,7 @@ runs:
     - name: "Terraform Apply"
       id: apply
       if: ${{ inputs.TERRAFORM_ACTIONS != 'plan'}}
-      run: terraform ${{ steps.vars.outputs.chdir }} apply -input=false -no-color result ${{ steps.vars.outputs.tfmask }}
+      run: terraform ${{ steps.vars.outputs.chdir }} apply  -no-color result ${{ steps.vars.outputs.tfmask }}
       shell: bash
 
       # change to terraform-bin https://github.com/hashicorp/setup-terraform/issues/20#issuecomment-723853380
