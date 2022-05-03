@@ -36,13 +36,20 @@
 
 ## GITHUB Action
 
-1. k8s-infra
+### k8s-infra
+
  用来实现，k8s 基础设施的，创建，销毁，更新的 CI job。
-2. k8s-base-apps-update
+
+### k8s-base-apps-update
+
  用来实现，k8s 基础 APP 的，更新的 CI job。
-3. k8s-base-apps-destroy
+
+### k8s-base-apps-destroy
+
  用来实现，k8s 基础 APP 的，销毁的 CI job。
-4. k8s-apps
+
+### k8s-apps
+
  用来实现，Apps，创建，更新，销毁的 CI job。
 
 ## Setup Terraform
