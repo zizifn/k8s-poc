@@ -45,6 +45,7 @@ jobs:
         run: |
           echo "actions: ${{github.event.inputs.actions}}"
           echo "turn_k8s_base_app: ${{github.event.inputs.turn_k8s_base_app}}"
+          echo "TURN_TF_MASK: ${{github.event.inputs.TURN_TF_MASK}}"
           touch oci_kube_config.temp
       # this is for get k8s access in order to delete base apps
       - name: "Terraform apply vcn and infra"
@@ -70,5 +71,5 @@ jobs:
           TURN_SETUP_TERRAFORM: 'ON'
           TERRAFORM_ACTIONS: "destroy"
           TERRAFORM_CH_DIR: "k8s-base-apps"
-        env:
-         TURN_TF_MASK: ${{github.event.inputs.TURN_TF_MASK}}
+          TURN_TF_MASK: ${{github.event.inputs.TURN_TF_MASK}}
+
