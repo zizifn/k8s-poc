@@ -54,7 +54,7 @@ jobs:
           TURN_SETUP_TERRAFORM: 'ON'
           TERRAFORM_ACTIONS: "apply"
           TERRAFORM_CH_DIR: "k8s-infra"
-          TURN_TF_MASK: 'ON'
+          TURN_TF_MASK: ${{github.event.inputs.TURN_TF_MASK}}
 
       - name: "add output mask"
         run: |
