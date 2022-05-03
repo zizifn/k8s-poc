@@ -85,7 +85,8 @@ jobs:
           TURN_SETUP_TERRAFORM: 'ON'
           TERRAFORM_ACTIONS: ${{github.event.inputs.actions}}
           TERRAFORM_CH_DIR: "k8s-base-apps"
+          TURN_TF_MASK: ${{github.event.inputs.TURN_TF_MASK}}
         env:
           TF_VAR_nsg_common_internet_access_id: ${{ fromJSON(steps.k8s_infra.outputs.json_output).nsg_common_internet_access_id.value }}
           TF_VAR_ingrss_nginx_lb_ip: ${{ fromJSON(steps.k8s_infra.outputs.json_output).ingrss_nginx_lb_ip.value }}
-          TURN_TF_MASK: ${{github.event.inputs.TURN_TF_MASK}}
+
