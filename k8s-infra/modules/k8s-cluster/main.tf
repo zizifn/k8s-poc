@@ -45,20 +45,26 @@ data "oci_core_images" "linux_os_images" {
 }
 
 locals {
-  kubernetes_version = "v1.22.5"
+  kubernetes_version = "v1.23.4"
   # vcn_public_subnet  = [for subnet in data.oci_core_subnets.k8s_subnets.subnets : subnet if length(regexall(".*public.*", subnet.display_name)) > 0]
   # vcn_private_subnet = [for subnet in data.oci_core_subnets.k8s_subnets.subnets : subnet if length(regexall(".*private.*", subnet.display_name)) > 0]
-  os = var.is_arm ? {
+  # os = var.is_arm ? {
+  #   image : [for image in data.oci_core_images.linux_os_images.images : image if length(regexall("(?i).*aarch64.*", image.display_name)) > 0],
+  #   shape : "VM.Standard.A1.Flex"
+  #   memory_in_gbs : 6
+  #   ocpus : 1
+  #   } : {
+  #   image : [for image in data.oci_core_images.linux_os_images.images : image if length(regexall("(?i).*aarch64|GPU.*", image.display_name)) < 1]
+  #   shape : "VM.Standard.E3.Flex"
+  #   memory_in_gbs : 16
+  #   ocpus : 1
+  # }
+    os = {
     image : [for image in data.oci_core_images.linux_os_images.images : image if length(regexall("(?i).*aarch64.*", image.display_name)) > 0],
     shape : "VM.Standard.A1.Flex"
-    memory_in_gbs : 6
-    ocpus : 1
-    } : {
-    image : [for image in data.oci_core_images.linux_os_images.images : image if length(regexall("(?i).*aarch64|GPU.*", image.display_name)) < 1]
-    shape : "VM.Standard.E3.Flex"
-    memory_in_gbs : 16
-    ocpus : 1
-  }
+    memory_in_gbs : 12
+    ocpus : 2
+    }
 }
 
 
@@ -134,37 +140,37 @@ resource "oci_containerengine_node_pool" "k8s_node_pool_private" {
   ssh_public_key = var.ssh_public_key
 }
 
-resource "oci_containerengine_node_pool" "k8s_node_pool_public" {
-  cluster_id         = oci_containerengine_cluster.k8s_cluster.id
-  compartment_id     = var.compartment_id
-  kubernetes_version = local.kubernetes_version
-  name               = "k8s-node-pool-public"
-  node_config_details {
-    placement_configs {
-      availability_domain = data.oci_identity_availability_domains.ads.availability_domains[0].name
-      subnet_id           = var.k8s_vcn_node_public_subnet_id
-    }
-    size = 1
-    # defined_tags = { "operation.Cost" = "k8s" }
-    freeform_tags = { "NodePool" = "k8s-node-pool-public" }
-    nsg_ids       = data.oci_core_network_security_groups.internet_access_network_security_groups.network_security_groups[*].id
-  }
-  node_shape = local.os.shape
+# resource "oci_containerengine_node_pool" "k8s_node_pool_public" {
+#   cluster_id         = oci_containerengine_cluster.k8s_cluster.id
+#   compartment_id     = var.compartment_id
+#   kubernetes_version = local.kubernetes_version
+#   name               = "k8s-node-pool-public"
+#   node_config_details {
+#     placement_configs {
+#       availability_domain = data.oci_identity_availability_domains.ads.availability_domains[0].name
+#       subnet_id           = var.k8s_vcn_node_public_subnet_id
+#     }
+#     size = 1
+#     # defined_tags = { "operation.Cost" = "k8s" }
+#     freeform_tags = { "NodePool" = "k8s-node-pool-public" }
+#     nsg_ids       = data.oci_core_network_security_groups.internet_access_network_security_groups.network_security_groups[*].id
+#   }
+#   node_shape = local.os.shape
 
-  node_shape_config {
-    memory_in_gbs = local.os.memory_in_gbs
-    ocpus         = local.os.ocpus
-  }
+#   node_shape_config {
+#     memory_in_gbs = local.os.memory_in_gbs
+#     ocpus         = local.os.ocpus
+#   }
 
-  node_source_details {
-    image_id    = local.os.image[0].id
-    source_type = "image"
-  }
+#   node_source_details {
+#     image_id    = local.os.image[0].id
+#     source_type = "image"
+#   }
 
-  initial_node_labels {
-    key   = "name"
-    value = "k8s-node-public"
-  }
+#   initial_node_labels {
+#     key   = "name"
+#     value = "k8s-node-public"
+#   }
 
-  ssh_public_key = var.ssh_public_key
-}
+#   ssh_public_key = var.ssh_public_key
+# }

@@ -55,7 +55,7 @@ module "k8s-cluster" {
   source                         = "./modules/k8s-cluster"
   compartment_id                 = var.compartment_id
   vcn_id                         = module.k8s-vcn-infra.vcn_id
-  is_arm                         = false
+  is_arm                         = true
   ssh_public_key                 = var.ssh_public_key
   k8s_vcn_api_public_subnet_id   = module.k8s-vcn-infra.k8s_vcn_api_public_subnet.id
   k8s_vcn_lb_public_subnet_id    = module.k8s-vcn-infra.k8s_vcn_lb_public_subnet.id
