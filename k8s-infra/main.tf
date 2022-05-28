@@ -26,7 +26,13 @@ terraform {
       source  = "hashicorp/helm"
       version = ">= 2.5.1"
     }
+    http = {
+      source = "hashicorp/http"
+      version = "2.1.0"
+    }
   }
+
+
 }
 # cau be use this no need .oci/config
 provider "oci" {

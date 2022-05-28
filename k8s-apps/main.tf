@@ -34,10 +34,6 @@ provider "kubernetes" {
   cluster_ca_certificate = try(base64decode(var.cluster_ca_certificate), null)
 }
 
-module "k8s-secrets" {
-  source = "./k8s-secrets"
-}
-
 module "k8s-app-config-map" {
   source = "./k8s-app-config-map"
 }
