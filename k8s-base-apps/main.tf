@@ -108,6 +108,9 @@ module "k8s-ingress-nginx" {
 
 module "k8s-opentelemetry-collector" {
   source = "./modules/k8s-opentelemetry-collector"
+  depends_on = [
+    module.k8s-auth-token
+  ]
 }
 
 
