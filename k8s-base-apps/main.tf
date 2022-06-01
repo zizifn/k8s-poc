@@ -30,12 +30,12 @@ locals {
 }
 
 provider "kubernetes" {
-    config_path              = fileexists(local.oci_config_path) ? local.oci_config_path : null
-    host                     = var.k8s_host
-    config_context_auth_info = var.config_context_auth_info
-    # username =
-    token                  = var.service_account_token
-    cluster_ca_certificate = try(base64decode(var.cluster_ca_certificate), null)
+  # config_path              = fileexists(local.oci_config_path) ? local.oci_config_path : null
+  host                     = var.k8s_host
+  config_context_auth_info = var.config_context_auth_info
+  # username =
+  token                  = var.service_account_token
+  cluster_ca_certificate = try(base64decode(var.cluster_ca_certificate), null)
 }
 
 provider "helm" {
@@ -84,9 +84,9 @@ module "k8s-cert-manager" {
 }
 
 module "k8s-cert-issuer" {
-  source = "./modules/k8s-cert-issuer"
+  source               = "./modules/k8s-cert-issuer"
   cloudflare_api_token = var.cloudflare_api_token
-  letsencrypt_email = var.letsencrypt_email
+  letsencrypt_email    = var.letsencrypt_email
   depends_on = [
     module.k8s-cert-manager
   ]
@@ -100,6 +100,14 @@ module "k8s-ingress-nginx" {
   depends_on = [
     module.k8s-cert-issuer
   ]
+}
+
+module "k8s-opentelemetry-operator" {
+  source = "./modules/k8s-opentelemetry-operator"
+}
+
+module "k8s-opentelemetry-collector" {
+  source = "./modules/k8s-opentelemetry-collector"
 }
 
 
