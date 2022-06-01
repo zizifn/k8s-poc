@@ -28,7 +28,6 @@ resource "kubernetes_manifest" "opentelemetrycollector_otelcontribcol" {
             exporters: [logging]
 
       EOT
-      "image" = "otel/opentelemetry-collector-contrib"
       "serviceAccount" = "otelcontribcol-sa"
     }
   }

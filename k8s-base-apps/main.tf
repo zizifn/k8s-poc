@@ -102,9 +102,9 @@ module "k8s-ingress-nginx" {
   ]
 }
 
-module "k8s-opentelemetry-operator" {
-  source = "./modules/k8s-opentelemetry-operator"
-}
+# module "k8s-opentelemetry-operator" {
+#   source = "./modules/k8s-opentelemetry-operator"
+# }
 
 module "k8s-opentelemetry-collector" {
   source = "./modules/k8s-opentelemetry-collector"
