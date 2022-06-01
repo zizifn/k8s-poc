@@ -1,26 +1,28 @@
-apiVersion: opentelemetry.io/v1alpha1
-kind: OpenTelemetryCollector
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: otelcontribcol
+  labels:
+    app: otelcontribcol
 spec:
-  image: otel/opentelemetry-collector-contrib
-  serviceAccount: otelcontribcol-sa
-  config: |
-    receivers:
-      otlp:
-        protocols:
-          grpc:
-          http:
-        k8s_cluster:
-          collection_interval: 10s
-    processors:
-
-    exporters:
-      logging:
-
-    service:
-      pipelines:
-        traces:
-          receivers: [otlp, k8s_cluster]
-          processors: []
-          exporters: [logging]
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otelcontribcol
+  template:
+    metadata:
+      labels:
+        app: otelcontribcol
+    spec:
+      serviceAccountName: otelcontribcol
+      containers:
+      - name: otelcontribcol
+        image: otel/opentelemetry-collector-contrib:latest # specify image
+        args: ["--config", "/etc/config/config.yaml"]
+        volumeMounts:
+        - name: config
+          mountPath: /etc/config
+      volumes:
+        - name: config
+          configMap:
+            name: otelcontribcol
