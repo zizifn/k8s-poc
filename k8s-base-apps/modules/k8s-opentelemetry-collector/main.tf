@@ -1,64 +1,104 @@
-resource "kubernetes_config_map_v1" "opentelemetry_k8s" {
+resource "kubernetes_config_map" "otel_agent_conf" {
   metadata {
-    name = "opentelemetry_collector_k8s"
+    name = "otel-agent-conf"
+    namespace = "default"
+
+    labels = {
+      app = "opentelemetry"
+
+      component = "otel-agent-conf"
+    }
   }
 
   data = {
-    "opentelemetry_k8s.yml" = "${file("${path.module}/data/opentelemetry_k8s.yml")}"
+    otel-agent-config = "${file("${path.module}/data/opentelemetry_k8s.yaml")}"
   }
-
 }
 
-resource "kubernetes_deployment" "otelcontribcol_k8s" {
+resource "kubernetes_daemonset" "otel_agent" {
   metadata {
-    name = "otelcontribcol_k8s"
+    name = "otel-agent"
+    namespace = "default"
 
     labels = {
-      app = "otelcontribcol_k8s"
+      app = "opentelemetry"
+
+      component = "otel-agent"
     }
   }
 
   spec {
-    replicas = 1
-
     selector {
       match_labels = {
-        app = "otelcontribcol_k8s"
+        app = "opentelemetry"
+
+        component = "otel-agent"
       }
     }
 
     template {
       metadata {
         labels = {
-          app = "otelcontribcol_k8s"
+          app = "opentelemetry"
+
+          component = "otel-agent"
         }
       }
 
       spec {
         volume {
-          name = "config"
+          name = "otel-agent-config-vol"
 
           config_map {
-            name = "opentelemetry_collector_k8s"
-          }
-        }
+            name = "otel-agent-conf"
 
-        container {
-          name  = "otelcontribcol"
-          image = "otel/opentelemetry-collector-contrib:latest"
-          args  = ["--config", "/etc/config/opentelemetry_k8s.yaml"]
-
-          volume_mount {
-            name       = "config"
-            mount_path = "/etc/config"
+            items {
+              key  = "otel-agent-config"
+              path = "otel-agent-config.yaml"
+            }
           }
         }
         service_account_name = "otelcontribcol-sa"
+        container {
+          name    = "otel-agent"
+          image   = "otel/opentelemetry-collector-contrib:0.51.0"
+          # command = ["/otelcol", "--config=/conf/otel-agent-config.yaml"]
+          args = ["--config", "/conf/otel-agent-config.yaml"]
+
+          port {
+            container_port = 55679
+          }
+
+          port {
+            container_port = 4317 # Default OpenTelemetry receiver port.
+          }
+
+          port {
+            container_port = 8888  # Metrics.
+          }
+
+          resources {
+            limits = {
+              cpu = "500m"
+
+              memory = "500Mi"
+            }
+
+            requests = {
+              cpu = "100m"
+
+              memory = "100Mi"
+            }
+          }
+
+          volume_mount {
+            name       = "otel-agent-config-vol"
+            mount_path = "/conf"
+          }
+        }
       }
     }
   }
-
-  depends_on = [
-    kubernetes_config_map_v1.opentelemetry_k8s
-  ]
 }
+
+
