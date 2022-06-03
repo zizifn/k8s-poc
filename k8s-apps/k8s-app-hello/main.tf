@@ -28,7 +28,7 @@ resource "kubernetes_deployment_v1" "k8s_deployment_ap123456" {
 
   spec {
     replicas               = 2
-    revision_history_limit = 4
+    revision_history_limit = 2
 
     selector {
       match_labels = {
@@ -63,6 +63,9 @@ resource "kubernetes_deployment_v1" "k8s_deployment_ap123456" {
               name = "ap123456"
             }
           }
+        }
+        image_pull_secrets {
+          name  = "docker-hub-cred"
         }
         node_selector = local.node_selector
       }

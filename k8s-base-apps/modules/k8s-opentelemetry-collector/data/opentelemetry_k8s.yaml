@@ -7,6 +7,7 @@ receivers:
     collection_interval: 10s
 exporters:
   logging:
+    loglevel: debug
 processors:
   batch:
   memory_limiter:
@@ -27,7 +28,7 @@ service:
       receivers: [otlp]
       processors: [memory_limiter, batch]
       exporters: [logging]
-    metrics:
-      receivers: [k8s_cluster]
-      processors: []
-      exporters: [logging]
+    # metrics:
+    #   receivers: [k8s_cluster]
+    #   processors: []
+    #   exporters: [logging]

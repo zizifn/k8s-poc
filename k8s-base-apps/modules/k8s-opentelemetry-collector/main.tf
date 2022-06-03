@@ -1,4 +1,77 @@
-resource "kubernetes_config_map" "otel_agent_conf" {
+
+resource "kubernetes_service_account_v1" "otelcontribcol_sa" {
+  metadata {
+    name = "otelcontribcol-sa"
+    namespace = "default"
+    labels = {
+      app = "otelcontribcol"
+    }
+  }
+}
+
+resource "kubernetes_cluster_role_v1" "otelcontribcol_role" {
+  metadata {
+    name = "otelcontribcol"
+
+    labels = {
+      app = "otelcontribcol"
+    }
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch"]
+    api_groups = [""]
+    resources  = ["events", "namespaces", "namespaces/status", "nodes", "nodes/spec", "pods", "pods/status", "replicationcontrollers", "replicationcontrollers/status", "resourcequotas", "services"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch"]
+    api_groups = ["apps"]
+    resources  = ["daemonsets", "deployments", "replicasets", "statefulsets"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch"]
+    api_groups = ["extensions"]
+    resources  = ["daemonsets", "deployments", "replicasets"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch"]
+    api_groups = ["batch"]
+    resources  = ["jobs", "cronjobs"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch"]
+    api_groups = ["autoscaling"]
+    resources  = ["horizontalpodautoscalers"]
+  }
+}
+
+resource "kubernetes_cluster_role_binding_v1" "otelcontribcol_role_binding" {
+  metadata {
+    name = "otelcontribcol"
+
+    labels = {
+      app = "otelcontribcol"
+    }
+  }
+
+  subject {
+    kind      = "ServiceAccount"
+    name      = "otelcontribcol-sa"
+    namespace = "default"
+  }
+
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = "otelcontribcol"
+  }
+}
+
+resource "kubernetes_config_map_v1" "otel_agent_conf" {
   metadata {
     name = "otel-agent-conf"
     namespace = "default"
@@ -15,7 +88,7 @@ resource "kubernetes_config_map" "otel_agent_conf" {
   }
 }
 
-resource "kubernetes_daemonset" "otel_agent" {
+resource "kubernetes_daemon_set_v1" "otel_agent" {
   metadata {
     name = "otel-agent"
     namespace = "default"
@@ -28,6 +101,7 @@ resource "kubernetes_daemonset" "otel_agent" {
   }
 
   spec {
+    revision_history_limit = 2
     selector {
       match_labels = {
         app = "opentelemetry"
@@ -58,7 +132,7 @@ resource "kubernetes_daemonset" "otel_agent" {
             }
           }
         }
-        service_account_name = "otelcontribcol-sa"
+        service_account_name = kubernetes_service_account_v1.otelcontribcol_sa.metadata[0].name
         container {
           name    = "otel-agent"
           image   = "otel/opentelemetry-collector-contrib:0.51.0"
@@ -71,6 +145,9 @@ resource "kubernetes_daemonset" "otel_agent" {
 
           port {
             container_port = 4317 # Default OpenTelemetry receiver port.
+          }
+          port {
+            container_port = 4318 # Default OpenTelemetry receiver http port.
           }
 
           port {
@@ -99,6 +176,41 @@ resource "kubernetes_daemonset" "otel_agent" {
       }
     }
   }
+
+  depends_on = [
+    kubernetes_cluster_role_binding_v1.otelcontribcol_role_binding
+  ]
 }
 
+resource "kubernetes_service_v1" "otel_agent_svc" {
+  metadata {
+    name = "otel-agent-svc"
+    labels = {
+      app = "opentelemetry"
+      component = "otel-agent"
+    }
+  }
+
+  spec {
+    port {
+      name = "55679"
+      port        = 55679
+      target_port = 55679
+    }
+    port {
+      name = "otlp-http"
+      port        = 4318
+      target_port = 4318
+    }
+    port {
+      name = "metrics"
+      port        = 8888
+      target_port = 8888
+    }
+
+    selector = {
+      component = "otel-agent"
+    }
+  }
+}
 
