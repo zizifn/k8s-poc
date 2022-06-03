@@ -1,0 +1,18 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+    k8s_cluster:
+      collection_interval: 10s
+processors:
+
+exporters:
+  logging:
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp, k8s_cluster]
+      processors: []
+      exporters: [logging]
