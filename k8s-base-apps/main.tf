@@ -30,7 +30,7 @@ locals {
 }
 
 provider "kubernetes" {
-  # config_path              = fileexists(local.oci_config_path) ? local.oci_config_path : null
+  config_path              = fileexists(local.oci_config_path) ? local.oci_config_path : null
   host                     = var.k8s_host
   config_context_auth_info = var.config_context_auth_info
   # username =
@@ -72,14 +72,14 @@ resource "local_sensitive_file" "sa_kube_config" {
     module.k8s-auth-token
   ]
 }
-module "k8s-cert-manager-crds" {
-  source = "./modules/k8s-cert-manager-crds"
+module "k8s-base-crds" {
+  source = "./modules/k8s-base-crds"
 }
 
 module "k8s-cert-manager" {
   source = "./modules/k8s-cert-manager"
   depends_on = [
-    module.k8s-cert-manager-crds
+    module.k8s-base-crds
   ]
 }
 
@@ -112,5 +112,3 @@ module "k8s-opentelemetry-collector" {
     module.k8s-auth-token
   ]
 }
-
-

@@ -76,7 +76,7 @@ jobs:
         run: |
             echo "ddd"
         shell: bash
-      - name: "setup k8s base apps k8s-cert-manager-crds"
+      - name: "setup k8s base apps k8s-base-crds"
         id: k8s_base_app_cert_manager_crds
         uses: ./.github/actions/terraform-module
         if: ${{github.event.inputs.turn_k8s_base_app == 'ON'}}
@@ -85,7 +85,7 @@ jobs:
           TURN_SETUP_TERRAFORM: 'ON'
           TERRAFORM_ACTIONS: ${{github.event.inputs.actions}}
           TERRAFORM_CH_DIR: "k8s-base-apps"
-          TERRAFORM_MODULE: "k8s-cert-manager-crds"
+          TERRAFORM_MODULE: "k8s-base-crds"
           TURN_TF_MASK: ${{github.event.inputs.TURN_TF_MASK}}
         env:
           TF_VAR_nsg_common_internet_access_id: ${{ fromJSON(steps.k8s_infra.outputs.json_output).nsg_common_internet_access_id.value }}
