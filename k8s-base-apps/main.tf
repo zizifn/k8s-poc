@@ -112,3 +112,18 @@ module "k8s-opentelemetry-collector" {
     module.k8s-auth-token
   ]
 }
+
+module "k8s-eck-operator" {
+  source = "./modules/k8s-eck-operator"
+  depends_on = [
+    module.k8s-auth-token
+  ]
+}
+
+module "k8s-eck" {
+  source = "./modules/k8s-eck"
+  depends_on = [
+    module.k8s-auth-token,
+    module.k8s-eck-operator
+  ]
+}
