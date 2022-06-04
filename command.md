@@ -19,3 +19,8 @@ http://localhost:8001/api/v1/namespaces/default/services/ap123456-docker-hello-w
 # test
 
  terraform import 'module.k8s-app-hello.kubernetes_service_v1.k8s_svc[\"ap123456\"]' default/ap123456-docker-hello-world-svc
+
+
+ # yaml to hcl
+ https://github.com/sl1pm4t/k2tf
+ https://github.com/jrhouston/tfk8s
