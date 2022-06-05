@@ -1,1109 +1,728 @@
-resource "kubernetes_manifest" "namespace_elastic_system" {
-  manifest = {
-    "apiVersion" = "v1"
-    "kind" = "Namespace"
-    "metadata" = {
-      "labels" = {
-        "name" = "elastic-system"
-      }
-      "name" = "elastic-system"
+resource "kubernetes_namespace" "elastic_system" {
+  metadata {
+    name = "elastic-system"
+
+    labels = {
+      name = "elastic-system"
     }
   }
 }
 
-resource "kubernetes_manifest" "serviceaccount_elastic_system_elastic_operator" {
-  manifest = {
-    "apiVersion" = "v1"
-    "kind" = "ServiceAccount"
-    "metadata" = {
-      "labels" = {
-        "app.kubernetes.io/version" = "2.2.0"
-        "control-plane" = "elastic-operator"
-      }
-      "name" = "elastic-operator"
-      "namespace" = "elastic-system"
+resource "kubernetes_service_account" "elastic_operator" {
+  metadata {
+    name      = "elastic-operator"
+    namespace = "elastic-system"
+
+    labels = {
+      "app.kubernetes.io/version" = "2.2.0"
+
+      control-plane = "elastic-operator"
     }
   }
 }
 
-resource "kubernetes_manifest" "secret_elastic_system_elastic_webhook_server_cert" {
-  manifest = {
-    "apiVersion" = "v1"
-    "kind" = "Secret"
-    "metadata" = {
-      "labels" = {
-        "app.kubernetes.io/version" = "2.2.0"
-        "control-plane" = "elastic-operator"
-      }
-      "name" = "elastic-webhook-server-cert"
-      "namespace" = "elastic-system"
+resource "kubernetes_secret" "elastic_webhook_server_cert" {
+  metadata {
+    name      = "elastic-webhook-server-cert"
+    namespace = "elastic-system"
+
+    labels = {
+      "app.kubernetes.io/version" = "2.2.0"
+
+      control-plane = "elastic-operator"
     }
   }
 }
 
-resource "kubernetes_manifest" "configmap_elastic_system_elastic_operator" {
-  manifest = {
-    "apiVersion" = "v1"
-    "data" = {
-      "eck.yaml" = <<-EOT
-      log-verbosity: 0
-      metrics-port: 0
-      container-registry: docker.elastic.co
-      max-concurrent-reconciles: 3
-      ca-cert-validity: 8760h
-      ca-cert-rotate-before: 24h
-      cert-validity: 8760h
-      cert-rotate-before: 24h
-      exposed-node-labels: [topology.kubernetes.io/.*,failure-domain.beta.kubernetes.io/.*]
-      set-default-security-context: auto-detect
-      kube-client-timeout: 60s
-      elasticsearch-client-timeout: 180s
-      disable-telemetry: false
-      distribution-channel: all-in-one
-      validate-storage-class: true
-      enable-webhook: true
-      webhook-name: elastic-webhook.k8s.elastic.co
-      EOT
+resource "kubernetes_config_map" "elastic_operator" {
+  metadata {
+    name      = "elastic-operator"
+    namespace = "elastic-system"
+
+    labels = {
+      "app.kubernetes.io/version" = "2.2.0"
+
+      control-plane = "elastic-operator"
     }
-    "kind" = "ConfigMap"
-    "metadata" = {
-      "labels" = {
-        "app.kubernetes.io/version" = "2.2.0"
-        "control-plane" = "elastic-operator"
-      }
-      "name" = "elastic-operator"
-      "namespace" = "elastic-system"
+  }
+
+  data = {
+    "eck.yaml" = "log-verbosity: 0\nmetrics-port: 0\ncontainer-registry: docker.elastic.co\nmax-concurrent-reconciles: 3\nca-cert-validity: 8760h\nca-cert-rotate-before: 24h\ncert-validity: 8760h\ncert-rotate-before: 24h\nexposed-node-labels: [topology.kubernetes.io/.*,failure-domain.beta.kubernetes.io/.*]\nset-default-security-context: auto-detect\nkube-client-timeout: 60s\nelasticsearch-client-timeout: 180s\ndisable-telemetry: false\ndistribution-channel: all-in-one\nvalidate-storage-class: true\nenable-webhook: true\nwebhook-name: elastic-webhook.k8s.elastic.co"
+  }
+}
+
+resource "kubernetes_cluster_role" "elastic_operator" {
+  metadata {
+    name = "elastic-operator"
+
+    labels = {
+      "app.kubernetes.io/version" = "2.2.0"
+
+      control-plane = "elastic-operator"
+    }
+  }
+
+  rule {
+    verbs      = ["create"]
+    api_groups = ["authorization.k8s.io"]
+    resources  = ["subjectaccessreviews"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch"]
+    api_groups = [""]
+    resources  = ["endpoints"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch", "create", "update", "patch", "delete"]
+    api_groups = [""]
+    resources  = ["pods", "events", "persistentvolumeclaims", "secrets", "services", "configmaps"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch", "create", "update", "patch", "delete"]
+    api_groups = ["apps"]
+    resources  = ["deployments", "statefulsets", "daemonsets"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch", "create", "update", "patch", "delete"]
+    api_groups = ["policy"]
+    resources  = ["poddisruptionbudgets"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch", "create", "update", "patch"]
+    api_groups = ["elasticsearch.k8s.elastic.co"]
+    resources  = ["elasticsearches", "elasticsearches/status", "elasticsearches/finalizers"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch", "create", "update", "patch"]
+    api_groups = ["kibana.k8s.elastic.co"]
+    resources  = ["kibanas", "kibanas/status", "kibanas/finalizers"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch", "create", "update", "patch"]
+    api_groups = ["apm.k8s.elastic.co"]
+    resources  = ["apmservers", "apmservers/status", "apmservers/finalizers"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch", "create", "update", "patch"]
+    api_groups = ["enterprisesearch.k8s.elastic.co"]
+    resources  = ["enterprisesearches", "enterprisesearches/status", "enterprisesearches/finalizers"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch", "create", "update", "patch"]
+    api_groups = ["beat.k8s.elastic.co"]
+    resources  = ["beats", "beats/status", "beats/finalizers"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch", "create", "update", "patch"]
+    api_groups = ["agent.k8s.elastic.co"]
+    resources  = ["agents", "agents/status", "agents/finalizers"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch", "create", "update", "patch"]
+    api_groups = ["maps.k8s.elastic.co"]
+    resources  = ["elasticmapsservers", "elasticmapsservers/status", "elasticmapsservers/finalizers"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch"]
+    api_groups = ["storage.k8s.io"]
+    resources  = ["storageclasses"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch", "create", "update", "patch", "delete"]
+    api_groups = ["admissionregistration.k8s.io"]
+    resources  = ["validatingwebhookconfigurations"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch"]
+    api_groups = [""]
+    resources  = ["nodes"]
+  }
+}
+
+resource "kubernetes_cluster_role" "elastic_operator_view" {
+  metadata {
+    name = "elastic-operator-view"
+
+    labels = {
+      "app.kubernetes.io/version" = "2.2.0"
+
+      control-plane = "elastic-operator"
+
+      "rbac.authorization.k8s.io/aggregate-to-admin" = "true"
+
+      "rbac.authorization.k8s.io/aggregate-to-edit" = "true"
+
+      "rbac.authorization.k8s.io/aggregate-to-view" = "true"
+    }
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch"]
+    api_groups = ["elasticsearch.k8s.elastic.co"]
+    resources  = ["elasticsearches"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch"]
+    api_groups = ["apm.k8s.elastic.co"]
+    resources  = ["apmservers"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch"]
+    api_groups = ["kibana.k8s.elastic.co"]
+    resources  = ["kibanas"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch"]
+    api_groups = ["enterprisesearch.k8s.elastic.co"]
+    resources  = ["enterprisesearches"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch"]
+    api_groups = ["beat.k8s.elastic.co"]
+    resources  = ["beats"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch"]
+    api_groups = ["agent.k8s.elastic.co"]
+    resources  = ["agents"]
+  }
+
+  rule {
+    verbs      = ["get", "list", "watch"]
+    api_groups = ["maps.k8s.elastic.co"]
+    resources  = ["elasticmapsservers"]
+  }
+}
+
+resource "kubernetes_cluster_role" "elastic_operator_edit" {
+  metadata {
+    name = "elastic-operator-edit"
+
+    labels = {
+      "app.kubernetes.io/version" = "2.2.0"
+
+      control-plane = "elastic-operator"
+
+      "rbac.authorization.k8s.io/aggregate-to-admin" = "true"
+
+      "rbac.authorization.k8s.io/aggregate-to-edit" = "true"
+    }
+  }
+
+  rule {
+    verbs      = ["create", "delete", "deletecollection", "patch", "update"]
+    api_groups = ["elasticsearch.k8s.elastic.co"]
+    resources  = ["elasticsearches"]
+  }
+
+  rule {
+    verbs      = ["create", "delete", "deletecollection", "patch", "update"]
+    api_groups = ["apm.k8s.elastic.co"]
+    resources  = ["apmservers"]
+  }
+
+  rule {
+    verbs      = ["create", "delete", "deletecollection", "patch", "update"]
+    api_groups = ["kibana.k8s.elastic.co"]
+    resources  = ["kibanas"]
+  }
+
+  rule {
+    verbs      = ["create", "delete", "deletecollection", "patch", "update"]
+    api_groups = ["enterprisesearch.k8s.elastic.co"]
+    resources  = ["enterprisesearches"]
+  }
+
+  rule {
+    verbs      = ["create", "delete", "deletecollection", "patch", "update"]
+    api_groups = ["beat.k8s.elastic.co"]
+    resources  = ["beats"]
+  }
+
+  rule {
+    verbs      = ["create", "delete", "deletecollection", "patch", "update"]
+    api_groups = ["agent.k8s.elastic.co"]
+    resources  = ["agents"]
+  }
+
+  rule {
+    verbs      = ["create", "delete", "deletecollection", "patch", "update"]
+    api_groups = ["maps.k8s.elastic.co"]
+    resources  = ["elasticmapsservers"]
+  }
+}
+
+resource "kubernetes_cluster_role_binding" "elastic_operator" {
+  metadata {
+    name = "elastic-operator"
+
+    labels = {
+      "app.kubernetes.io/version" = "2.2.0"
+
+      control-plane = "elastic-operator"
+    }
+  }
+
+  subject {
+    kind      = "ServiceAccount"
+    name      = "elastic-operator"
+    namespace = "elastic-system"
+  }
+
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = "elastic-operator"
+  }
+}
+
+resource "kubernetes_service" "elastic_webhook_server" {
+  metadata {
+    name      = "elastic-webhook-server"
+    namespace = "elastic-system"
+
+    labels = {
+      "app.kubernetes.io/version" = "2.2.0"
+
+      control-plane = "elastic-operator"
+    }
+  }
+
+  spec {
+    port {
+      name        = "https"
+      port        = 443
+      target_port = "9443"
+    }
+
+    selector = {
+      control-plane = "elastic-operator"
     }
   }
 }
 
-resource "kubernetes_manifest" "clusterrole_elastic_operator" {
-  manifest = {
-    "apiVersion" = "rbac.authorization.k8s.io/v1"
-    "kind" = "ClusterRole"
-    "metadata" = {
-      "labels" = {
-        "app.kubernetes.io/version" = "2.2.0"
-        "control-plane" = "elastic-operator"
-      }
-      "name" = "elastic-operator"
-    }
-    "rules" = [
-      {
-        "apiGroups" = [
-          "authorization.k8s.io",
-        ]
-        "resources" = [
-          "subjectaccessreviews",
-        ]
-        "verbs" = [
-          "create",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "",
-        ]
-        "resources" = [
-          "endpoints",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "",
-        ]
-        "resources" = [
-          "pods",
-          "events",
-          "persistentvolumeclaims",
-          "secrets",
-          "services",
-          "configmaps",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-          "create",
-          "update",
-          "patch",
-          "delete",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "apps",
-        ]
-        "resources" = [
-          "deployments",
-          "statefulsets",
-          "daemonsets",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-          "create",
-          "update",
-          "patch",
-          "delete",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "policy",
-        ]
-        "resources" = [
-          "poddisruptionbudgets",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-          "create",
-          "update",
-          "patch",
-          "delete",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "elasticsearch.k8s.elastic.co",
-        ]
-        "resources" = [
-          "elasticsearches",
-          "elasticsearches/status",
-          "elasticsearches/finalizers",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-          "create",
-          "update",
-          "patch",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "kibana.k8s.elastic.co",
-        ]
-        "resources" = [
-          "kibanas",
-          "kibanas/status",
-          "kibanas/finalizers",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-          "create",
-          "update",
-          "patch",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "apm.k8s.elastic.co",
-        ]
-        "resources" = [
-          "apmservers",
-          "apmservers/status",
-          "apmservers/finalizers",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-          "create",
-          "update",
-          "patch",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "enterprisesearch.k8s.elastic.co",
-        ]
-        "resources" = [
-          "enterprisesearches",
-          "enterprisesearches/status",
-          "enterprisesearches/finalizers",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-          "create",
-          "update",
-          "patch",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "beat.k8s.elastic.co",
-        ]
-        "resources" = [
-          "beats",
-          "beats/status",
-          "beats/finalizers",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-          "create",
-          "update",
-          "patch",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "agent.k8s.elastic.co",
-        ]
-        "resources" = [
-          "agents",
-          "agents/status",
-          "agents/finalizers",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-          "create",
-          "update",
-          "patch",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "maps.k8s.elastic.co",
-        ]
-        "resources" = [
-          "elasticmapsservers",
-          "elasticmapsservers/status",
-          "elasticmapsservers/finalizers",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-          "create",
-          "update",
-          "patch",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "storage.k8s.io",
-        ]
-        "resources" = [
-          "storageclasses",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "admissionregistration.k8s.io",
-        ]
-        "resources" = [
-          "validatingwebhookconfigurations",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-          "create",
-          "update",
-          "patch",
-          "delete",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "",
-        ]
-        "resources" = [
-          "nodes",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-        ]
-      },
-    ]
-  }
-}
+resource "kubernetes_stateful_set" "elastic_operator" {
+  metadata {
+    name      = "elastic-operator"
+    namespace = "elastic-system"
 
-resource "kubernetes_manifest" "clusterrole_elastic_operator_view" {
-  manifest = {
-    "apiVersion" = "rbac.authorization.k8s.io/v1"
-    "kind" = "ClusterRole"
-    "metadata" = {
-      "labels" = {
-        "app.kubernetes.io/version" = "2.2.0"
-        "control-plane" = "elastic-operator"
-        "rbac.authorization.k8s.io/aggregate-to-admin" = "true"
-        "rbac.authorization.k8s.io/aggregate-to-edit" = "true"
-        "rbac.authorization.k8s.io/aggregate-to-view" = "true"
-      }
-      "name" = "elastic-operator-view"
-    }
-    "rules" = [
-      {
-        "apiGroups" = [
-          "elasticsearch.k8s.elastic.co",
-        ]
-        "resources" = [
-          "elasticsearches",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "apm.k8s.elastic.co",
-        ]
-        "resources" = [
-          "apmservers",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "kibana.k8s.elastic.co",
-        ]
-        "resources" = [
-          "kibanas",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "enterprisesearch.k8s.elastic.co",
-        ]
-        "resources" = [
-          "enterprisesearches",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "beat.k8s.elastic.co",
-        ]
-        "resources" = [
-          "beats",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "agent.k8s.elastic.co",
-        ]
-        "resources" = [
-          "agents",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "maps.k8s.elastic.co",
-        ]
-        "resources" = [
-          "elasticmapsservers",
-        ]
-        "verbs" = [
-          "get",
-          "list",
-          "watch",
-        ]
-      },
-    ]
-  }
-}
+    labels = {
+      "app.kubernetes.io/version" = "2.2.0"
 
-resource "kubernetes_manifest" "clusterrole_elastic_operator_edit" {
-  manifest = {
-    "apiVersion" = "rbac.authorization.k8s.io/v1"
-    "kind" = "ClusterRole"
-    "metadata" = {
-      "labels" = {
-        "app.kubernetes.io/version" = "2.2.0"
-        "control-plane" = "elastic-operator"
-        "rbac.authorization.k8s.io/aggregate-to-admin" = "true"
-        "rbac.authorization.k8s.io/aggregate-to-edit" = "true"
-      }
-      "name" = "elastic-operator-edit"
-    }
-    "rules" = [
-      {
-        "apiGroups" = [
-          "elasticsearch.k8s.elastic.co",
-        ]
-        "resources" = [
-          "elasticsearches",
-        ]
-        "verbs" = [
-          "create",
-          "delete",
-          "deletecollection",
-          "patch",
-          "update",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "apm.k8s.elastic.co",
-        ]
-        "resources" = [
-          "apmservers",
-        ]
-        "verbs" = [
-          "create",
-          "delete",
-          "deletecollection",
-          "patch",
-          "update",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "kibana.k8s.elastic.co",
-        ]
-        "resources" = [
-          "kibanas",
-        ]
-        "verbs" = [
-          "create",
-          "delete",
-          "deletecollection",
-          "patch",
-          "update",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "enterprisesearch.k8s.elastic.co",
-        ]
-        "resources" = [
-          "enterprisesearches",
-        ]
-        "verbs" = [
-          "create",
-          "delete",
-          "deletecollection",
-          "patch",
-          "update",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "beat.k8s.elastic.co",
-        ]
-        "resources" = [
-          "beats",
-        ]
-        "verbs" = [
-          "create",
-          "delete",
-          "deletecollection",
-          "patch",
-          "update",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "agent.k8s.elastic.co",
-        ]
-        "resources" = [
-          "agents",
-        ]
-        "verbs" = [
-          "create",
-          "delete",
-          "deletecollection",
-          "patch",
-          "update",
-        ]
-      },
-      {
-        "apiGroups" = [
-          "maps.k8s.elastic.co",
-        ]
-        "resources" = [
-          "elasticmapsservers",
-        ]
-        "verbs" = [
-          "create",
-          "delete",
-          "deletecollection",
-          "patch",
-          "update",
-        ]
-      },
-    ]
-  }
-}
-
-resource "kubernetes_manifest" "clusterrolebinding_elastic_operator" {
-  manifest = {
-    "apiVersion" = "rbac.authorization.k8s.io/v1"
-    "kind" = "ClusterRoleBinding"
-    "metadata" = {
-      "labels" = {
-        "app.kubernetes.io/version" = "2.2.0"
-        "control-plane" = "elastic-operator"
-      }
-      "name" = "elastic-operator"
-    }
-    "roleRef" = {
-      "apiGroup" = "rbac.authorization.k8s.io"
-      "kind" = "ClusterRole"
-      "name" = "elastic-operator"
-    }
-    "subjects" = [
-      {
-        "kind" = "ServiceAccount"
-        "name" = "elastic-operator"
-        "namespace" = "elastic-system"
-      },
-    ]
-  }
-}
-
-resource "kubernetes_manifest" "service_elastic_system_elastic_webhook_server" {
-  manifest = {
-    "apiVersion" = "v1"
-    "kind" = "Service"
-    "metadata" = {
-      "labels" = {
-        "app.kubernetes.io/version" = "2.2.0"
-        "control-plane" = "elastic-operator"
-      }
-      "name" = "elastic-webhook-server"
-      "namespace" = "elastic-system"
-    }
-    "spec" = {
-      "ports" = [
-        {
-          "name" = "https"
-          "port" = 443
-          "targetPort" = 9443
-        },
-      ]
-      "selector" = {
-        "control-plane" = "elastic-operator"
-      }
+      control-plane = "elastic-operator"
     }
   }
-}
 
-resource "kubernetes_manifest" "statefulset_elastic_system_elastic_operator" {
-  manifest = {
-    "apiVersion" = "apps/v1"
-    "kind" = "StatefulSet"
-    "metadata" = {
-      "labels" = {
-        "app.kubernetes.io/version" = "2.2.0"
-        "control-plane" = "elastic-operator"
+  spec {
+    replicas = 1
+
+    selector {
+      match_labels = {
+        control-plane = "elastic-operator"
       }
-      "name" = "elastic-operator"
-      "namespace" = "elastic-system"
     }
-    "spec" = {
-      "replicas" = 1
-      "selector" = {
-        "matchLabels" = {
-          "control-plane" = "elastic-operator"
+
+    template {
+      metadata {
+        labels = {
+          control-plane = "elastic-operator"
+        }
+
+        annotations = {
+          "checksum/config" = "302bbb79b6fb0ffa41fcc06e164252c7dad887cf4d8149c8e1e5203c7651277e"
+
+          "co.elastic.logs/raw" = "[{\"type\":\"container\",\"json.keys_under_root\":true,\"paths\":[\"/var/log/containers/*$${data.kubernetes.container.id}.log\"],\"processors\":[{\"convert\":{\"mode\":\"rename\",\"ignore_missing\":true,\"fields\":[{\"from\":\"error\",\"to\":\"_error\"}]}},{\"convert\":{\"mode\":\"rename\",\"ignore_missing\":true,\"fields\":[{\"from\":\"_error\",\"to\":\"error.message\"}]}},{\"convert\":{\"mode\":\"rename\",\"ignore_missing\":true,\"fields\":[{\"from\":\"source\",\"to\":\"_source\"}]}},{\"convert\":{\"mode\":\"rename\",\"ignore_missing\":true,\"fields\":[{\"from\":\"_source\",\"to\":\"event.source\"}]}}]}]"
         }
       }
-      "serviceName" = "elastic-operator"
-      "template" = {
-        "metadata" = {
-          "annotations" = {
-            "checksum/config" = "302bbb79b6fb0ffa41fcc06e164252c7dad887cf4d8149c8e1e5203c7651277e"
-            "co.elastic.logs/raw" = "[{\"type\":\"container\",\"json.keys_under_root\":true,\"paths\":[\"/var/log/containers/*$${data.kubernetes.container.id}.log\"],\"processors\":[{\"convert\":{\"mode\":\"rename\",\"ignore_missing\":true,\"fields\":[{\"from\":\"error\",\"to\":\"_error\"}]}},{\"convert\":{\"mode\":\"rename\",\"ignore_missing\":true,\"fields\":[{\"from\":\"_error\",\"to\":\"error.message\"}]}},{\"convert\":{\"mode\":\"rename\",\"ignore_missing\":true,\"fields\":[{\"from\":\"source\",\"to\":\"_source\"}]}},{\"convert\":{\"mode\":\"rename\",\"ignore_missing\":true,\"fields\":[{\"from\":\"_source\",\"to\":\"event.source\"}]}}]}]"
-          }
-          "labels" = {
-            "control-plane" = "elastic-operator"
+
+      spec {
+        volume {
+          name = "conf"
+
+          config_map {
+            name = "elastic-operator"
           }
         }
-        "spec" = {
-          "containers" = [
-            {
-              "args" = [
-                "manager",
-                "--config=/conf/eck.yaml",
-              ]
-              "env" = [
-                {
-                  "name" = "OPERATOR_NAMESPACE"
-                  "valueFrom" = {
-                    "fieldRef" = {
-                      "fieldPath" = "metadata.namespace"
-                    }
-                  }
-                },
-                {
-                  "name" = "POD_IP"
-                  "valueFrom" = {
-                    "fieldRef" = {
-                      "fieldPath" = "status.podIP"
-                    }
-                  }
-                },
-                {
-                  "name" = "WEBHOOK_SECRET"
-                  "value" = "elastic-webhook-server-cert"
-                },
-              ]
-              "image" = "docker.elastic.co/eck/eck-operator:2.2.0"
-              "imagePullPolicy" = "IfNotPresent"
-              "name" = "manager"
-              "ports" = [
-                {
-                  "containerPort" = 9443
-                  "name" = "https-webhook"
-                  "protocol" = "TCP"
-                },
-              ]
-              "resources" = {
-                "limits" = {
-                  "cpu" = 1
-                  "memory" = "1Gi"
-                }
-                "requests" = {
-                  "cpu" = "100m"
-                  "memory" = "150Mi"
-                }
+
+        volume {
+          name = "cert"
+
+          secret {
+            secret_name  = "elastic-webhook-server-cert"
+            default_mode = "0644"
+          }
+        }
+
+        container {
+          name  = "manager"
+          image = "docker.elastic.co/eck/eck-operator:2.2.0"
+          args  = ["manager", "--config=/conf/eck.yaml"]
+
+          port {
+            name           = "https-webhook"
+            container_port = 9443
+            protocol       = "TCP"
+          }
+
+          env {
+            name = "OPERATOR_NAMESPACE"
+
+            value_from {
+              field_ref {
+                field_path = "metadata.namespace"
               }
-              "volumeMounts" = [
-                {
-                  "mountPath" = "/conf"
-                  "name" = "conf"
-                  "readOnly" = true
-                },
-                {
-                  "mountPath" = "/tmp/k8s-webhook-server/serving-certs"
-                  "name" = "cert"
-                  "readOnly" = true
-                },
-              ]
-            },
-          ]
-          "securityContext" = {
-            "runAsNonRoot" = true
+            }
           }
-          "serviceAccountName" = "elastic-operator"
-          "terminationGracePeriodSeconds" = 10
-          "volumes" = [
-            {
-              "configMap" = {
-                "name" = "elastic-operator"
+
+          env {
+            name = "POD_IP"
+
+            value_from {
+              field_ref {
+                field_path = "status.podIP"
               }
-              "name" = "conf"
-            },
-            {
-              "name" = "cert"
-              "secret" = {
-                "defaultMode" = 420
-                "secretName" = "elastic-webhook-server-cert"
-              }
-            },
-          ]
+            }
+          }
+
+          env {
+            name  = "WEBHOOK_SECRET"
+            value = "elastic-webhook-server-cert"
+          }
+
+          resources {
+            limits = {
+              cpu = "1"
+
+              memory = "1Gi"
+            }
+
+            requests = {
+              cpu = "100m"
+
+              memory = "150Mi"
+            }
+          }
+
+          volume_mount {
+            name       = "conf"
+            read_only  = true
+            mount_path = "/conf"
+          }
+
+          volume_mount {
+            name       = "cert"
+            read_only  = true
+            mount_path = "/tmp/k8s-webhook-server/serving-certs"
+          }
+
+          image_pull_policy = "IfNotPresent"
+        }
+
+        termination_grace_period_seconds = 10
+        service_account_name             = "elastic-operator"
+
+        security_context {
+          run_as_non_root = true
         }
       }
     }
+
+    service_name = "elastic-operator"
   }
 }
 
-resource "kubernetes_manifest" "validatingwebhookconfiguration_elastic_webhook_k8s_elastic_co" {
-  field_manager {
-    force_conflicts = true
-  }
-  manifest = {
-    "apiVersion" = "admissionregistration.k8s.io/v1"
-    "kind" = "ValidatingWebhookConfiguration"
-    "metadata" = {
-      "labels" = {
-        "app.kubernetes.io/version" = "2.2.0"
-        "control-plane" = "elastic-operator"
-      }
-      "name" = "elastic-webhook.k8s.elastic.co"
+resource "kubernetes_validating_webhook_configuration" "elastic_webhook_k_8_s_elastic_co" {
+  metadata {
+    name = "elastic-webhook.k8s.elastic.co"
+
+    labels = {
+      "app.kubernetes.io/version" = "2.2.0"
+
+      control-plane = "elastic-operator"
     }
-    "webhooks" = [
-      {
-        "admissionReviewVersions" = [
-          "v1beta1",
-        ]
-        "clientConfig" = {
-          "caBundle" = "Cg=="
-          "service" = {
-            "name" = "elastic-webhook-server"
-            "namespace" = "elastic-system"
-            "path" = "/validate-agent-k8s-elastic-co-v1alpha1-agent"
-          }
-        }
-        "failurePolicy" = "Ignore"
-        "matchPolicy" = "Exact"
-        "name" = "elastic-agent-validation-v1alpha1.k8s.elastic.co"
-        "rules" = [
-          {
-            "apiGroups" = [
-              "agent.k8s.elastic.co",
-            ]
-            "apiVersions" = [
-              "v1alpha1",
-            ]
-            "operations" = [
-              "CREATE",
-              "UPDATE",
-            ]
-            "resources" = [
-              "agents",
-            ]
-          },
-        ]
-        "sideEffects" = "None"
-      },
-      {
-        "admissionReviewVersions" = [
-          "v1beta1",
-        ]
-        "clientConfig" = {
-          "caBundle" = "Cg=="
-          "service" = {
-            "name" = "elastic-webhook-server"
-            "namespace" = "elastic-system"
-            "path" = "/validate-apm-k8s-elastic-co-v1-apmserver"
-          }
-        }
-        "failurePolicy" = "Ignore"
-        "matchPolicy" = "Exact"
-        "name" = "elastic-apm-validation-v1.k8s.elastic.co"
-        "rules" = [
-          {
-            "apiGroups" = [
-              "apm.k8s.elastic.co",
-            ]
-            "apiVersions" = [
-              "v1",
-            ]
-            "operations" = [
-              "CREATE",
-              "UPDATE",
-            ]
-            "resources" = [
-              "apmservers",
-            ]
-          },
-        ]
-        "sideEffects" = "None"
-      },
-      {
-        "admissionReviewVersions" = [
-          "v1beta1",
-        ]
-        "clientConfig" = {
-          "caBundle" = "Cg=="
-          "service" = {
-            "name" = "elastic-webhook-server"
-            "namespace" = "elastic-system"
-            "path" = "/validate-apm-k8s-elastic-co-v1beta1-apmserver"
-          }
-        }
-        "failurePolicy" = "Ignore"
-        "matchPolicy" = "Exact"
-        "name" = "elastic-apm-validation-v1beta1.k8s.elastic.co"
-        "rules" = [
-          {
-            "apiGroups" = [
-              "apm.k8s.elastic.co",
-            ]
-            "apiVersions" = [
-              "v1beta1",
-            ]
-            "operations" = [
-              "CREATE",
-              "UPDATE",
-            ]
-            "resources" = [
-              "apmservers",
-            ]
-          },
-        ]
-        "sideEffects" = "None"
-      },
-      {
-        "admissionReviewVersions" = [
-          "v1beta1",
-        ]
-        "clientConfig" = {
-          "caBundle" = "Cg=="
-          "service" = {
-            "name" = "elastic-webhook-server"
-            "namespace" = "elastic-system"
-            "path" = "/validate-beat-k8s-elastic-co-v1beta1-beat"
-          }
-        }
-        "failurePolicy" = "Ignore"
-        "matchPolicy" = "Exact"
-        "name" = "elastic-beat-validation-v1beta1.k8s.elastic.co"
-        "rules" = [
-          {
-            "apiGroups" = [
-              "beat.k8s.elastic.co",
-            ]
-            "apiVersions" = [
-              "v1beta1",
-            ]
-            "operations" = [
-              "CREATE",
-              "UPDATE",
-            ]
-            "resources" = [
-              "beats",
-            ]
-          },
-        ]
-        "sideEffects" = "None"
-      },
-      {
-        "admissionReviewVersions" = [
-          "v1beta1",
-        ]
-        "clientConfig" = {
-          "caBundle" = "Cg=="
-          "service" = {
-            "name" = "elastic-webhook-server"
-            "namespace" = "elastic-system"
-            "path" = "/validate-enterprisesearch-k8s-elastic-co-v1-enterprisesearch"
-          }
-        }
-        "failurePolicy" = "Ignore"
-        "matchPolicy" = "Exact"
-        "name" = "elastic-ent-validation-v1.k8s.elastic.co"
-        "rules" = [
-          {
-            "apiGroups" = [
-              "enterprisesearch.k8s.elastic.co",
-            ]
-            "apiVersions" = [
-              "v1",
-            ]
-            "operations" = [
-              "CREATE",
-              "UPDATE",
-            ]
-            "resources" = [
-              "enterprisesearches",
-            ]
-          },
-        ]
-        "sideEffects" = "None"
-      },
-      {
-        "admissionReviewVersions" = [
-          "v1beta1",
-        ]
-        "clientConfig" = {
-          "caBundle" = "Cg=="
-          "service" = {
-            "name" = "elastic-webhook-server"
-            "namespace" = "elastic-system"
-            "path" = "/validate-enterprisesearch-k8s-elastic-co-v1beta1-enterprisesearch"
-          }
-        }
-        "failurePolicy" = "Ignore"
-        "matchPolicy" = "Exact"
-        "name" = "elastic-ent-validation-v1beta1.k8s.elastic.co"
-        "rules" = [
-          {
-            "apiGroups" = [
-              "enterprisesearch.k8s.elastic.co",
-            ]
-            "apiVersions" = [
-              "v1beta1",
-            ]
-            "operations" = [
-              "CREATE",
-              "UPDATE",
-            ]
-            "resources" = [
-              "enterprisesearches",
-            ]
-          },
-        ]
-        "sideEffects" = "None"
-      },
-      {
-        "admissionReviewVersions" = [
-          "v1beta1",
-        ]
-        "clientConfig" = {
-          "caBundle" = "Cg=="
-          "service" = {
-            "name" = "elastic-webhook-server"
-            "namespace" = "elastic-system"
-            "path" = "/validate-elasticsearch-k8s-elastic-co-v1-elasticsearch"
-          }
-        }
-        "failurePolicy" = "Ignore"
-        "matchPolicy" = "Exact"
-        "name" = "elastic-es-validation-v1.k8s.elastic.co"
-        "rules" = [
-          {
-            "apiGroups" = [
-              "elasticsearch.k8s.elastic.co",
-            ]
-            "apiVersions" = [
-              "v1",
-            ]
-            "operations" = [
-              "CREATE",
-              "UPDATE",
-            ]
-            "resources" = [
-              "elasticsearches",
-            ]
-          },
-        ]
-        "sideEffects" = "None"
-      },
-      {
-        "admissionReviewVersions" = [
-          "v1beta1",
-        ]
-        "clientConfig" = {
-          "caBundle" = "Cg=="
-          "service" = {
-            "name" = "elastic-webhook-server"
-            "namespace" = "elastic-system"
-            "path" = "/validate-elasticsearch-k8s-elastic-co-v1beta1-elasticsearch"
-          }
-        }
-        "failurePolicy" = "Ignore"
-        "matchPolicy" = "Exact"
-        "name" = "elastic-es-validation-v1beta1.k8s.elastic.co"
-        "rules" = [
-          {
-            "apiGroups" = [
-              "elasticsearch.k8s.elastic.co",
-            ]
-            "apiVersions" = [
-              "v1beta1",
-            ]
-            "operations" = [
-              "CREATE",
-              "UPDATE",
-            ]
-            "resources" = [
-              "elasticsearches",
-            ]
-          },
-        ]
-        "sideEffects" = "None"
-      },
-      {
-        "admissionReviewVersions" = [
-          "v1beta1",
-        ]
-        "clientConfig" = {
-          "caBundle" = "Cg=="
-          "service" = {
-            "name" = "elastic-webhook-server"
-            "namespace" = "elastic-system"
-            "path" = "/validate-kibana-k8s-elastic-co-v1-kibana"
-          }
-        }
-        "failurePolicy" = "Ignore"
-        "matchPolicy" = "Exact"
-        "name" = "elastic-kb-validation-v1.k8s.elastic.co"
-        "rules" = [
-          {
-            "apiGroups" = [
-              "kibana.k8s.elastic.co",
-            ]
-            "apiVersions" = [
-              "v1",
-            ]
-            "operations" = [
-              "CREATE",
-              "UPDATE",
-            ]
-            "resources" = [
-              "kibanas",
-            ]
-          },
-        ]
-        "sideEffects" = "None"
-      },
-      {
-        "admissionReviewVersions" = [
-          "v1beta1",
-        ]
-        "clientConfig" = {
-          "caBundle" = "Cg=="
-          "service" = {
-            "name" = "elastic-webhook-server"
-            "namespace" = "elastic-system"
-            "path" = "/validate-kibana-k8s-elastic-co-v1beta1-kibana"
-          }
-        }
-        "failurePolicy" = "Ignore"
-        "matchPolicy" = "Exact"
-        "name" = "elastic-kb-validation-v1beta1.k8s.elastic.co"
-        "rules" = [
-          {
-            "apiGroups" = [
-              "kibana.k8s.elastic.co",
-            ]
-            "apiVersions" = [
-              "v1beta1",
-            ]
-            "operations" = [
-              "CREATE",
-              "UPDATE",
-            ]
-            "resources" = [
-              "kibanas",
-            ]
-          },
-        ]
-        "sideEffects" = "None"
-      },
-    ]
+  }
+
+  webhook {
+    name = "elastic-agent-validation-v1alpha1.k8s.elastic.co"
+
+    client_config {
+      service {
+        namespace = "elastic-system"
+        name      = "elastic-webhook-server"
+        path      = "/validate-agent-k8s-elastic-co-v1alpha1-agent"
+      }
+
+      ca_bundle =  "Cg=="
+    }
+
+    rule {
+      api_groups  = [ "agent.k8s.elastic.co"]
+      operations = ["CREATE", "UPDATE"]
+      api_versions = ["v1alpha1"]
+      resources    = ["agents"]
+    }
+
+    failure_policy            = "Ignore"
+    match_policy              = "Exact"
+    side_effects              = "None"
+    admission_review_versions = ["v1beta1"]
+  }
+
+  webhook {
+    name = "elastic-apm-validation-v1.k8s.elastic.co"
+
+    client_config {
+      service {
+        namespace = "elastic-system"
+        name      = "elastic-webhook-server"
+        path      = "/validate-apm-k8s-elastic-co-v1-apmserver"
+      }
+
+      ca_bundle =  "Cg=="
+    }
+
+    rule {
+      api_groups  = [ "apm.k8s.elastic.co"]
+      operations = ["CREATE", "UPDATE"]
+      api_versions = ["v1"]
+      resources    = ["apmservers"]
+    }
+
+    failure_policy            = "Ignore"
+    match_policy              = "Exact"
+    side_effects              = "None"
+    admission_review_versions = ["v1beta1"]
+  }
+
+  webhook {
+    name = "elastic-apm-validation-v1beta1.k8s.elastic.co"
+
+    client_config {
+      service {
+        namespace = "elastic-system"
+        name      = "elastic-webhook-server"
+        path      = "/validate-apm-k8s-elastic-co-v1beta1-apmserver"
+      }
+
+      ca_bundle =  "Cg=="
+    }
+
+    rule {
+      api_groups  = [ "apm.k8s.elastic.co"]
+      operations = ["CREATE", "UPDATE"]
+      api_versions = ["v1beta1"]
+      resources    = ["apmservers"]
+    }
+
+    failure_policy            = "Ignore"
+    match_policy              = "Exact"
+    side_effects              = "None"
+    admission_review_versions = ["v1beta1"]
+  }
+
+  webhook {
+    name = "elastic-beat-validation-v1beta1.k8s.elastic.co"
+
+    client_config {
+      service {
+        namespace = "elastic-system"
+        name      = "elastic-webhook-server"
+        path      = "/validate-beat-k8s-elastic-co-v1beta1-beat"
+      }
+
+      ca_bundle =  "Cg=="
+    }
+
+    rule {
+            api_groups  = [ "beat.k8s.elastic.co"]
+      operations = ["CREATE", "UPDATE"]
+      api_versions = ["v1beta1"]
+      resources    = ["beats"]
+    }
+
+    failure_policy            = "Ignore"
+    match_policy              = "Exact"
+    side_effects              = "None"
+    admission_review_versions = ["v1beta1"]
+  }
+
+  webhook {
+    name = "elastic-ent-validation-v1.k8s.elastic.co"
+
+    client_config {
+      service {
+        namespace = "elastic-system"
+        name      = "elastic-webhook-server"
+        path      = "/validate-enterprisesearch-k8s-elastic-co-v1-enterprisesearch"
+      }
+
+      ca_bundle =  "Cg=="
+    }
+
+    rule {
+                  api_groups  = [ "enterprisesearch.k8s.elastic.co"]
+      operations = ["CREATE", "UPDATE"]
+      api_versions = ["v1"]
+      resources    = ["enterprisesearches"]
+    }
+
+    failure_policy            = "Ignore"
+    match_policy              = "Exact"
+    side_effects              = "None"
+    admission_review_versions = ["v1beta1"]
+  }
+
+  webhook {
+    name = "elastic-ent-validation-v1beta1.k8s.elastic.co"
+
+    client_config {
+      service {
+        namespace = "elastic-system"
+        name      = "elastic-webhook-server"
+        path      = "/validate-enterprisesearch-k8s-elastic-co-v1beta1-enterprisesearch"
+      }
+
+      ca_bundle =  "Cg=="
+    }
+
+    rule {
+      api_groups  = [ "enterprisesearch.k8s.elastic.co"]
+      operations = ["CREATE", "UPDATE"]
+      api_versions = ["v1beta1"]
+      resources    = ["enterprisesearches"]
+    }
+
+    failure_policy            = "Ignore"
+    match_policy              = "Exact"
+    side_effects              = "None"
+    admission_review_versions = ["v1beta1"]
+  }
+
+  webhook {
+    name = "elastic-es-validation-v1.k8s.elastic.co"
+
+    client_config {
+      service {
+        namespace = "elastic-system"
+        name      = "elastic-webhook-server"
+        path      = "/validate-elasticsearch-k8s-elastic-co-v1-elasticsearch"
+      }
+
+      ca_bundle =  "Cg=="
+    }
+
+    rule {
+      api_groups  = [ "elasticsearch.k8s.elastic.co"]
+      operations = ["CREATE", "UPDATE"]
+      api_versions = ["v1"]
+      resources    = ["elasticsearches"]
+    }
+
+    failure_policy            = "Ignore"
+    match_policy              = "Exact"
+    side_effects              = "None"
+    admission_review_versions = ["v1beta1"]
+  }
+
+  webhook {
+    name = "elastic-es-validation-v1beta1.k8s.elastic.co"
+
+    client_config {
+      service {
+        namespace = "elastic-system"
+        name      = "elastic-webhook-server"
+        path      = "/validate-elasticsearch-k8s-elastic-co-v1beta1-elasticsearch"
+      }
+
+      ca_bundle =  "Cg=="
+    }
+
+    rule {
+      api_groups  = [ "elasticsearch.k8s.elastic.co"]
+      operations = ["CREATE", "UPDATE"]
+      api_versions = ["v1beta1"]
+      resources    = ["elasticsearches"]
+    }
+
+    failure_policy            = "Ignore"
+    match_policy              = "Exact"
+    side_effects              = "None"
+    admission_review_versions = ["v1beta1"]
+  }
+
+  webhook {
+    name = "elastic-kb-validation-v1.k8s.elastic.co"
+
+    client_config {
+      service {
+        namespace = "elastic-system"
+        name      = "elastic-webhook-server"
+        path      = "/validate-kibana-k8s-elastic-co-v1-kibana"
+      }
+
+      ca_bundle =  "Cg=="
+    }
+
+    rule {
+      api_groups  = [ "kibana.k8s.elastic.co"]
+      operations = ["CREATE", "UPDATE"]
+      api_versions = ["v1"]
+      resources    = ["kibanas"]
+    }
+
+    failure_policy            = "Ignore"
+    match_policy              = "Exact"
+    side_effects              = "None"
+    admission_review_versions = ["v1beta1"]
+  }
+
+  webhook {
+    name = "elastic-kb-validation-v1beta1.k8s.elastic.co"
+
+    client_config {
+      service {
+        namespace = "elastic-system"
+        name      = "elastic-webhook-server"
+        path      = "/validate-kibana-k8s-elastic-co-v1beta1-kibana"
+      }
+
+      ca_bundle =  "Cg=="
+    }
+
+    rule {
+      api_groups  = [ "kibana.k8s.elastic.co"]
+      operations = ["CREATE", "UPDATE"]
+      api_versions = ["v1beta1"]
+      resources    = ["kibanas"]
+    }
+
+    failure_policy            = "Ignore"
+    match_policy              = "Exact"
+    side_effects              = "None"
+    admission_review_versions = ["v1beta1"]
+  }
+
+  lifecycle {
+    ignore_changes = all
   }
 }
+

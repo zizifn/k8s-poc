@@ -63,6 +63,27 @@ resource "kubernetes_deployment_v1" "k8s_deployment_ap123456" {
               name = "ap123456"
             }
           }
+          env {
+            name = "POD_IP"
+
+            value_from {
+              field_ref {
+                field_path = "status.podIP"
+              }
+            }
+          }
+
+          env {
+            name = "CONTAINER_NAME"
+            value = local.appid
+          }
+
+          env {
+            name  = "OTEL_RESOURCE_ATTRIBUTES"
+            value = "k8s.pod.ip=$(POD_IP),k8s.container.name=${local.appid}"
+            # value = "k8s.pod.ip=$(POD_IP)"
+
+          }
         }
         image_pull_secrets {
           name  = "docker-hub-cred"

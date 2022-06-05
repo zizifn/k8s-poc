@@ -1,7 +1,7 @@
 
 resource "kubernetes_service_account_v1" "otelcontribcol_sa" {
   metadata {
-    name = "otelcontribcol-sa"
+    name      = "otelcontribcol-sa"
     namespace = "default"
     labels = {
       app = "otelcontribcol"
@@ -73,7 +73,7 @@ resource "kubernetes_cluster_role_binding_v1" "otelcontribcol_role_binding" {
 
 resource "kubernetes_config_map_v1" "otel_agent_conf" {
   metadata {
-    name = "otel-agent-conf"
+    name      = "otel-agent-conf"
     namespace = "default"
 
     labels = {
@@ -90,7 +90,7 @@ resource "kubernetes_config_map_v1" "otel_agent_conf" {
 
 resource "kubernetes_daemon_set_v1" "otel_agent" {
   metadata {
-    name = "otel-agent"
+    name      = "otel-agent"
     namespace = "default"
 
     labels = {
@@ -134,8 +134,8 @@ resource "kubernetes_daemon_set_v1" "otel_agent" {
         }
         service_account_name = kubernetes_service_account_v1.otelcontribcol_sa.metadata[0].name
         container {
-          name    = "otel-agent"
-          image   = "otel/opentelemetry-collector-contrib:0.51.0"
+          name  = "otel-agent"
+          image = "otel/opentelemetry-collector-contrib:0.51.0"
           # command = ["/otelcol", "--config=/conf/otel-agent-config.yaml"]
           args = ["--config", "/conf/otel-agent-config.yaml"]
 
@@ -151,7 +151,7 @@ resource "kubernetes_daemon_set_v1" "otel_agent" {
           }
 
           port {
-            container_port = 8888  # Metrics.
+            container_port = 8888 # Metrics.
           }
 
           resources {
@@ -168,6 +168,35 @@ resource "kubernetes_daemon_set_v1" "otel_agent" {
             }
           }
 
+          # env_from {
+          #   secret_ref {
+          #     name = "apm-apm-token"
+          #   }
+          # }
+          # env {
+          #   name = "POD_IP"
+
+          #   value_from {
+          #     field_ref {
+          #       field_path = "status.podIP"
+          #     }
+          #   }
+          # }
+
+          # env {
+          #   name  = "OTEL_RESOURCE_ATTRIBUTES"
+          #   value = "k8s.pod.ip=$(POD_IP)"
+          # }
+          env {
+            name = "KUBE_NODE_NAME"
+
+            value_from {
+              field_ref {
+                api_version = "v1"
+                field_path  = "spec.nodeName"
+              }
+            }
+          }
           volume_mount {
             name       = "otel-agent-config-vol"
             mount_path = "/conf"
@@ -186,24 +215,24 @@ resource "kubernetes_service_v1" "otel_agent_svc" {
   metadata {
     name = "otel-agent-svc"
     labels = {
-      app = "opentelemetry"
+      app       = "opentelemetry"
       component = "otel-agent"
     }
   }
 
   spec {
     port {
-      name = "55679"
+      name        = "55679"
       port        = 55679
       target_port = 55679
     }
     port {
-      name = "otlp-http"
+      name        = "otlp-http"
       port        = 4318
       target_port = 4318
     }
     port {
-      name = "metrics"
+      name        = "metrics"
       port        = 8888
       target_port = 8888
     }
