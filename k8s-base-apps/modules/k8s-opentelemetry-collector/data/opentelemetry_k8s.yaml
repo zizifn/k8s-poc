@@ -5,9 +5,16 @@ receivers:
       http:
   k8s_cluster:
     collection_interval: 10s
+    allocatable_types_to_report: [cpu, memory, ephemeral-storage, storage]
 exporters:
   logging:
     loglevel: debug
+  otlp/elastic:
+    endpoint: "apm-apm-http:8200"
+    tls:
+      insecure_skip_verify: true
+    headers:
+      # Authorization: "Bearer ${secret-token}1"
 processors:
   batch:
   memory_limiter:
@@ -16,6 +23,37 @@ processors:
     # 25% of limit up to 2G
     spike_limit_mib: 100
     check_interval: 5s
+
+  # resourcedetection:
+  #   detectors: [env]
+  #   timeout: 5s
+  #   override: false
+      # The k8sattributes in the Agent is in passthrough mode
+      # so that it only tags with the minimal info for the
+      # collector k8sattributes to complete
+  # need app has env OTEL_RESOURCE_ATTRIBUTES or may need resourcedetection, this is wired, OTEL_RESOURCE_ATTRIBUTES must has k8s.pod.ip and k8s.container.name
+  k8sattributes:
+    passthrough: false
+    filter:
+      node_from_env_var: KUBE_NODE_NAME
+    extract:
+      metadata:
+        - k8s.pod.name
+        - k8s.pod.uid
+        - k8s.deployment.name
+        - k8s.cluster.name
+        - k8s.namespace.name
+        - k8s.node.name
+        - k8s.pod.start_time
+        - container.image.name
+        - container.image.tag
+        - container.id
+    pod_association:
+      - from: resource_attribute
+        name: k8s.pod.uid
+      - from: resource_attribute
+        name: k8s.pod.ip
+      - from: connection
 extensions:
   zpages: {}
   memory_ballast:
@@ -23,12 +61,15 @@ extensions:
     size_mib: 165
 service:
   extensions: [zpages, memory_ballast]
+  # telemetry:
+  #   logs:
+  #     level: "debug"
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [memory_limiter, batch]
-      exporters: [logging]
+      processors: [memory_limiter, batch, k8sattributes]
+      exporters: [logging,otlp/elastic]
     # metrics:
     #   receivers: [k8s_cluster]
-    #   processors: []
-    #   exporters: [logging]
+    #   processors: [batch, resourcedetection, k8sattributes]
+    #   exporters: [otlp/elastic]

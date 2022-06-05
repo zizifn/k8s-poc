@@ -53,19 +53,21 @@ resource "kubernetes_manifest" "kibana_kibana" {
       "elasticsearchRef" = {
         "name" = "elasticsearch"
       }
-      "podTemplate" = {
-        "metadata" = {
-          "labels" = {
-            "foo" = "bar"
+      "http" = {
+        "tls" = {
+          "selfSignedCertificate" = {
+            "disabled" = true
           }
         }
+      }
+      "podTemplate" = {
         "spec" = {
           "containers" = [
             {
               "name" = "kibana"
               "resources" = {
                 "limits" = {
-                  "cpu" = 1
+                  "cpu" = "1"
                   "memory" = "1Gi"
                 }
               }
@@ -74,6 +76,51 @@ resource "kubernetes_manifest" "kibana_kibana" {
         }
       }
       "version" = "8.2.2"
+    }
+  }
+
+  computed_fields = [ "spec.podTemplate.metadata.creationTimestamp" ]
+}
+
+resource "kubernetes_manifest" "ingress_kibana_ingress" {
+  manifest = {
+    "apiVersion" = "networking.k8s.io/v1"
+    "kind" = "Ingress"
+    "metadata" = {
+      "name" = "kibana-ingress"
+      "namespace" = "default"
+    }
+    "spec" = {
+      "ingressClassName" = "nginx"
+      "rules" = [
+        {
+          "host" = "k8s-kibana.zizi.press"
+          "http" = {
+            "paths" = [
+              {
+                "backend" = {
+                  "service" = {
+                    "name" = "kibana-kb-http"
+                    "port" = {
+                      "number" = 5601
+                    }
+                  }
+                }
+                "path" = "/"
+                "pathType" = "Prefix"
+              },
+            ]
+          }
+        },
+      ]
+      "tls" = [
+        {
+          "hosts" = [
+            "k8s-kibana.zizi.press",
+          ]
+          "secretName" = "zizi-press-tls"
+        },
+      ]
     }
   }
 }
