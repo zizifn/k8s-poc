@@ -1,11 +1,77 @@
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: kibana
+spec:
+  version: 8.2.2
+  count: 1
+  elasticsearchRef:
+    name: elasticsearch
+  config:
+    xpack.fleet.agents.elasticsearch.hosts: ["https://elasticsearch-es-http.default.svc:9200"]
+    xpack.fleet.agents.fleet_server.hosts: ["https://fleet-server-agent-http.default.svc:8220"]
+    xpack.fleet.packages:
+    - name: system
+      version: latest
+    - name: elastic_agent
+      version: latest
+    - name: fleet_server
+      version: latest
+    - name: apm
+      version: latest
+    - name: kubernetes
+      # pinning this version as the next one introduced a kube-proxy host setting default that breaks this recipe,
+      # see https://github.com/elastic/integrations/pull/1565 for more details
+      version: latest
+    xpack.fleet.agentPolicies:
+    - name: Fleet Server on ECK policy
+      id: eck-fleet-server
+      is_default_fleet_server: true
+      namespace: default
+      monitoring_enabled:
+      - logs
+      - metrics
+      package_policies:
+      - name: fleet_server-1
+        id: fleet_server-1
+        package:
+          name: fleet_server
+    - name: Elastic Agent on ECK policy
+      id: eck-agent
+      namespace: default
+      monitoring_enabled:
+      - logs
+      - metrics
+      unenroll_timeout: 900
+      is_default: true
+      package_policies:
+      - name: system-1
+        id: system-1
+        package:
+          name: system
+      - package:
+          name: kubernetes
+        name: kubernetes-1
+      - package:
+          name: apm
+        name: apm-1
+        inputs:
+        - type: apm
+          enabled: true
+          vars:
+          - name: host
+            value: 0.0.0.0:8200
+  http:
+    tls:
+      selfSignedCertificate:
+        disabled: true
+---
 apiVersion: elasticsearch.k8s.elastic.co/v1
 kind: Elasticsearch
 metadata:
   name: elasticsearch
-  namespace: default
 spec:
   version: 8.2.2
-  volumeClaimDeletePolicy: DeleteOnScaledownOnly
   nodeSets:
   - name: default
     count: 1
@@ -22,41 +88,178 @@ spec:
               storage: 50Gi
           storageClassName: oci-bv
 ---
-apiVersion: kibana.k8s.elastic.co/v1
-kind: Kibana
+apiVersion: agent.k8s.elastic.co/v1alpha1
+kind: Agent
 metadata:
-  name: kibana
-  namespace: default
+  name: fleet-server
 spec:
   version: 8.2.2
-  count: 1
-  elasticsearchRef:
-    name: elasticsearch
-  config:
-    xpack.fleet.packages:
-    - name: apm
-      version: latest
-  http:
-    tls:
-      selfSignedCertificate:
-        disabled: true
-  #http:
-  #  service:
-  #    spec:
-  #      type: LoadBalancer
-  # this shows how to customize the Kibana pod
-  # with labels and resource limits
-  podTemplate:
-    metadata:
-      labels:
-        foo: bar
-    spec:
-      containers:
-      - name: kibana
-        resources:
-          limits:
-            memory: 1Gi
-            cpu: 1
+  kibanaRef:
+    name: kibana
+  elasticsearchRefs:
+  - name: elasticsearch
+  mode: fleet
+  fleetServerEnabled: true
+  deployment:
+    replicas: 1
+    podTemplate:
+      spec:
+        serviceAccountName: fleet-server
+        automountServiceAccountToken: true
+        securityContext:
+          runAsUser: 0
+---
+apiVersion: agent.k8s.elastic.co/v1alpha1
+kind: Agent
+metadata:
+  name: elastic-agent
+spec:
+  version: 8.2.2
+  kibanaRef:
+    name: kibana
+  fleetServerRef:
+    name: fleet-server
+  mode: fleet
+  daemonSet:
+    podTemplate:
+      spec:
+        serviceAccountName: elastic-agent
+        hostNetwork: true
+        dnsPolicy: ClusterFirstWithHostNet
+        automountServiceAccountToken: true
+        securityContext:
+          runAsUser: 0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apm-apm-http
+spec:
+  selector:
+    agent.k8s.elastic.co/name: elastic-agent
+  ports:
+  - protocol: TCP
+    port: 8200
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fleet-server
+rules:
+- apiGroups: [""]
+  resources:
+  - pods
+  - namespaces
+  - nodes
+  verbs:
+  - get
+  - watch
+  - list
+- apiGroups: ["coordination.k8s.io"]
+  resources:
+  - leases
+  verbs:
+  - get
+  - create
+  - update
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fleet-server
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: fleet-server
+subjects:
+- kind: ServiceAccount
+  name: fleet-server
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: fleet-server
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: elastic-agent
+rules:
+- apiGroups: [""]
+  resources:
+  - pods
+  - nodes
+  - namespaces
+  - events
+  - services
+  - configmaps
+  verbs:
+  - get
+  - watch
+  - list
+- apiGroups: ["coordination.k8s.io"]
+  resources:
+  - leases
+  verbs:
+  - get
+  - create
+  - update
+- nonResourceURLs:
+  - "/metrics"
+  verbs:
+  - get
+- apiGroups: ["extensions"]
+  resources:
+    - replicasets
+  verbs:
+  - "get"
+  - "list"
+  - "watch"
+- apiGroups:
+  - "apps"
+  resources:
+  - statefulsets
+  - deployments
+  - replicasets
+  verbs:
+  - "get"
+  - "list"
+  - "watch"
+- apiGroups:
+  - ""
+  resources:
+  - nodes/stats
+  verbs:
+  - get
+- apiGroups:
+  - "batch"
+  resources:
+  - jobs
+  verbs:
+  - "get"
+  - "list"
+  - "watch"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: elastic-agent
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: elastic-agent
+subjects:
+- kind: ServiceAccount
+  name: elastic-agent
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: elastic-agent
+  apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -91,16 +294,14 @@ spec:
             name: kibana-kb-http
             port:
               number: 5601
----
-apiVersion: apm.k8s.elastic.co/v1
-kind: ApmServer
-metadata:
-  name: apm
-  namespace: default
-spec:
-  version: 8.2.2
-  count: 1
-  elasticsearchRef:
-    name: elasticsearch
-  kibanaRef:
-    name: kibana
+  - host: "k8s-kibana-d.zizi.press"
+    http:
+      paths:
+      # Root URI / is required for kibana logging
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: kibana-kb-http
+            port:
+              number: 5601
