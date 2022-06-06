@@ -12,6 +12,7 @@ exporters:
   otlp/elastic:
     endpoint: "apm-apm-http:8200"
     tls:
+      insecure: true
       insecure_skip_verify: true
     headers:
       # Authorization: "Bearer ${secret-token}1"
