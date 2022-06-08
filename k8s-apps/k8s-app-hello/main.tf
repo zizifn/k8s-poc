@@ -63,6 +63,11 @@ resource "kubernetes_deployment_v1" "k8s_deployment_ap123456" {
               name = "ap123456"
             }
           }
+          # env_from {
+          #   secret_ref {
+          #     name = "elasticsearch-es-elastic-user"
+          #   }
+          # }
           env {
             name = "POD_IP"
 

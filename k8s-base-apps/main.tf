@@ -113,18 +113,19 @@ module "k8s-opentelemetry-collector" {
   ]
 }
 
-# 这里有点问题，就使用 kube 命令直接部署把。
-# module "k8s-eck-operator" {
-#   source = "./modules/k8s-eck-operator"
-#   depends_on = [
-#     module.k8s-auth-token
-#   ]
-# }
 
-module "k8s-eck" {
-  source = "./modules/k8s-eck"
+module "k8s-eck-operator" {
+  source = "./modules/k8s-eck-operator"
   depends_on = [
-    module.k8s-auth-token,
-    module.k8s-eck-operator
+    module.k8s-auth-token
   ]
 }
+
+# 这里有点问题，就使用 kube 命令直接部署把。
+# module "k8s-eck" {
+#   source = "./modules/k8s-eck"
+#   depends_on = [
+#     module.k8s-auth-token,
+#     module.k8s-eck-operator
+#   ]
+# }
