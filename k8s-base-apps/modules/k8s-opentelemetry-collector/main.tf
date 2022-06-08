@@ -120,6 +120,11 @@ resource "kubernetes_daemon_set_v1" "otel_agent" {
       }
 
       spec {
+        # security_context {
+        #   se_linux_options {
+        #     level = "s0:c123,c456"
+        #   }
+        # }
         volume {
           name = "otel-agent-config-vol"
 
@@ -130,6 +135,27 @@ resource "kubernetes_daemon_set_v1" "otel_agent" {
               key  = "otel-agent-config"
               path = "otel-agent-config.yaml"
             }
+          }
+        }
+        volume {
+          name = "cert-volume"
+
+          secret {
+            secret_name = "elasticsearch-es-http-certs-public"
+          }
+        }
+        volume {
+          name = "varlog"
+
+          host_path {
+            path = "/var/log"
+          }
+        }
+        volume {
+          name = "varlibdockercontainers"
+
+          host_path {
+            path = "/var/lib/docker/containers"
           }
         }
         service_account_name = kubernetes_service_account_v1.otelcontribcol_sa.metadata[0].name
@@ -168,6 +194,12 @@ resource "kubernetes_daemon_set_v1" "otel_agent" {
             }
           }
 
+          env_from {
+            secret_ref {
+              name = "elasticsearch-es-elastic-user"
+            }
+          }
+
           # env_from {
           #   secret_ref {
           #     name = "apm-apm-token"
@@ -197,9 +229,28 @@ resource "kubernetes_daemon_set_v1" "otel_agent" {
               }
             }
           }
+          security_context {
+            privileged = true
+        }
           volume_mount {
             name       = "otel-agent-config-vol"
             mount_path = "/conf"
+          }
+          volume_mount {
+            name       = "varlog"
+            read_only  = true
+            mount_path = "/var/log"
+
+        }
+          volume_mount {
+            name       = "varlibdockercontainers"
+            read_only  = true
+            mount_path = "/var/lib/docker/containers"
+          }
+          volume_mount {
+            name       = "cert-volume"
+            read_only  = true
+            mount_path = "/etc/cert-volume"
           }
         }
       }
