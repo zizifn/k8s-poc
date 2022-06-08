@@ -1,6 +1,8 @@
 # 基于 OCI 的 kubernetes 的搭建
 
-使用 Terraform 在 oracle cloud 上搭建 kubernetes。 这是一个基本完备的 poc。完整的基础设施和 APP 的 CICD pipeline。
+使用 Terraform 在 oracle cloud 上搭建 kubernetes。 这是一个基本完备的 poc。具有完整的基础设施和 APP 的 CICD pipeline。
+
+相关架构文档， https://github.com/zizifn/thoughts/blob/master/%E6%9E%B6%E6%9E%84/intro.md
 
 示例 app https://k8s.zizi.press/gtw/hello
 
@@ -25,7 +27,10 @@
 | k8s-cert-manager     | 利用 lets encrypt 实现TLS证书的自动签发 |
 | k8s-ingress-nginx     | ingress nginx |
 | k8s-auth-token     | 基于rbac 创建 kubernetes account |
+| k8s-eck     | elastic stack https://k8s-kibana.zizi.press/|
+| k8s-opentelemetry-collector     | opentelemetry for apm/metrics/log |
 
+> k8s-eck 没有使用 terraform，terraform manifest 对于elastic 有点问题。
 ### k8s-apps
 
 所有 APP 的所在地
