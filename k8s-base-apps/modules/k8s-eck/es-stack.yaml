@@ -305,3 +305,40 @@ spec:
             name: kibana-kb-http
             port:
               number: 5601
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: es-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - "k8s-es.zizi.press"
+    secretName: zizi-press-tls
+  rules:
+  - host: "k8s-es.zizi.press"
+    http:
+      paths:
+      # Root URI / is required for kibana logging
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: elasticsearch-es-http
+            port:
+              number: 9200
+  - host: "k8s-es-d.zizi.press"
+    http:
+      paths:
+      # Root URI / is required for kibana logging
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: elasticsearch-es-http
+            port:
+              number: 9200
