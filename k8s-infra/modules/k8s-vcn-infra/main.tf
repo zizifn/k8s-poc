@@ -36,10 +36,10 @@ resource "oci_core_security_list" "private_k8s_subnet_sl" {
 
   # allow traffic coming with VCN,可以更具体点，分成 worker和Kubernetes，这里为了简化，在VCN 里面允许相互连接。
   egress_security_rules {
-    stateless         = false
+    stateless        = false
     destination      = "10.0.0.0/16"
     destination_type = "CIDR_BLOCK"
-    protocol          = "all"
+    protocol         = "all"
   }
 
   # allow traffic coming with VCN,可以更具体点，分成 worker和Kubernetes，这里为了简化，在VCN 里面允许相互连接。
@@ -81,14 +81,10 @@ resource "oci_core_security_list" "public_k8s_subnet_sl" {
 
   # enable icmp
   ingress_security_rules {
-    stateless        = false
-    source       = "0.0.0.0/0"
-    source_type  = "CIDR_BLOCK"
-    protocol         = "1"
-    icmp_options {
-      code = 3
-      type = 4
-    }
+    stateless   = false
+    source      = "0.0.0.0/0"
+    source_type = "CIDR_BLOCK"
+    protocol    = "1"
   }
 }
 
