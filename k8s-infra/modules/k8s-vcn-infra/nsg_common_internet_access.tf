@@ -3,7 +3,7 @@ resource "oci_core_network_security_group" "nsg_common_internet_access" {
   compartment_id = var.compartment_id
   vcn_id         = module.vcn.vcn_id
   display_name   = "nsg_common_internet_access"
-  freeform_tags = {"type"= "nsg"}
+  freeform_tags  = { "type" = "nsg" }
 }
 resource "oci_core_network_security_group_security_rule" "ssh_network_security_group_security_rule" {
   #Required
@@ -19,6 +19,24 @@ resource "oci_core_network_security_group_security_rule" "ssh_network_security_g
     destination_port_range {
       max = 22
       min = 22
+    }
+  }
+}
+
+resource "oci_core_network_security_group_security_rule" "ssh2_network_security_group_security_rule" {
+  #Required
+  network_security_group_id = oci_core_network_security_group.nsg_common_internet_access.id
+  direction                 = "INGRESS"
+  protocol                  = 6 # tcp
+  #Optional
+  description = "ssh2"
+  source      = "0.0.0.0/0"
+  source_type = "CIDR_BLOCK"
+  stateless   = false
+  tcp_options {
+    destination_port_range {
+      max = 1025
+      min = 1025
     }
   }
 }
