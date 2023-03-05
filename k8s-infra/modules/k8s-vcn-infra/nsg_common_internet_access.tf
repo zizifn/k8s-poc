@@ -65,7 +65,7 @@ resource "oci_core_network_security_group_security_rule" "http_network_security_
   direction                 = "INGRESS"
   protocol                  = 6 # tcp
   #Optional
-  description = "port manipulate the Kubernetes cluster"
+  description = "allow http"
   source      = "0.0.0.0/0"
   source_type = "CIDR_BLOCK"
   stateless   = false
@@ -83,7 +83,7 @@ resource "oci_core_network_security_group_security_rule" "https_network_security
   direction                 = "INGRESS"
   protocol                  = 6 # tcp
   #Optional
-  description = "port manipulate the Kubernetes cluster"
+  description = "allow https"
   source      = "0.0.0.0/0"
   source_type = "CIDR_BLOCK"
   stateless   = false

@@ -1,15 +1,15 @@
-terraform {
-  required_providers {
-    oci = {
-      source  = "oracle/oci"
-      version = "~> 4.72.0"
-    }
-  }
-}
+# terraform {
+#   required_providers {
+#     oci = {
+#       source  = "oracle/oci"
+#       version = "~> 4.109.0"
+#     }
+#   }
+# }
 # oci oke
 data "oci_containerengine_clusters" "echo_clusters" {
-    #Required
-    compartment_id = var.compartment_id
+  #Required
+  compartment_id = var.compartment_id
 }
 
 # oke app

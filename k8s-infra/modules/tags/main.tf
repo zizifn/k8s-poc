@@ -1,12 +1,12 @@
 
-terraform {
-  required_providers {
-    oci = {
-      source  = "oracle/oci"
-      version = "~> 4.72.0"
-    }
-  }
-}
+# terraform {
+#   required_providers {
+#     oci = {
+#       source  = "oracle/oci"
+#       version = "~> 4.109.0"
+#     }
+#   }
+# }
 
 locals {
   tag_namespaces = {

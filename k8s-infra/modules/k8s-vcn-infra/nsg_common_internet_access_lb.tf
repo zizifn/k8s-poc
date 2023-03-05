@@ -3,7 +3,7 @@ resource "oci_core_network_security_group" "nsg_common_internet_access_lb" {
   compartment_id = var.compartment_id
   vcn_id         = module.vcn.vcn_id
   display_name   = "nsg_common_internet_access_lb"
-  freeform_tags = {"type"= "nsg"}
+  freeform_tags  = { "type" = "nsg" }
 }
 
 resource "oci_core_network_security_group_security_rule" "http_network_security_group_security_rule_lb" {
@@ -12,7 +12,7 @@ resource "oci_core_network_security_group_security_rule" "http_network_security_
   direction                 = "INGRESS"
   protocol                  = 6 # tcp
   #Optional
-  description = "port manipulate the Kubernetes cluster"
+  description = "allow http"
   source      = "0.0.0.0/0"
   source_type = "CIDR_BLOCK"
   stateless   = false

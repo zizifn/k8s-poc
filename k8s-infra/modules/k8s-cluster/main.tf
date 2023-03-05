@@ -1,11 +1,11 @@
-terraform {
-  required_providers {
-    oci = {
-      source  = "oracle/oci"
-      version = "~> 4.72.0"
-    }
-  }
-}
+# terraform {
+#   required_providers {
+#     oci = {
+#       source  = "oracle/oci"
+#       version = "~> 4.109.0"
+#     }
+#   }
+# }
 data "oci_core_vcn" "k8s_vcn" {
   #Required
   vcn_id = var.vcn_id
@@ -45,7 +45,7 @@ data "oci_core_images" "linux_os_images" {
 }
 
 locals {
-  kubernetes_version = "v1.23.4"
+  kubernetes_version = "v1.25.4"
   # vcn_public_subnet  = [for subnet in data.oci_core_subnets.k8s_subnets.subnets : subnet if length(regexall(".*public.*", subnet.display_name)) > 0]
   # vcn_private_subnet = [for subnet in data.oci_core_subnets.k8s_subnets.subnets : subnet if length(regexall(".*private.*", subnet.display_name)) > 0]
   # os = var.is_arm ? {
@@ -59,12 +59,12 @@ locals {
   #   memory_in_gbs : 16
   #   ocpus : 1
   # }
-    os = {
+  os = {
     image : [for image in data.oci_core_images.linux_os_images.images : image if length(regexall("(?i).*aarch64.*", image.display_name)) > 0],
     shape : "VM.Standard.A1.Flex"
     memory_in_gbs : 12
     ocpus : 2
-    }
+  }
 }
 
 
@@ -118,7 +118,7 @@ resource "oci_containerengine_node_pool" "k8s_node_pool_private" {
     size = 2
     # defined_tags = { "operation.Cost" = "k8s" }
     freeform_tags = { "NodePool" = "k8s-node-pool-private" }
-    nsg_ids = data.oci_core_network_security_groups.nsg_private_internet_access.network_security_groups[*].id
+    nsg_ids       = data.oci_core_network_security_groups.nsg_private_internet_access.network_security_groups[*].id
   }
   node_shape = local.os.shape
 

@@ -1,12 +1,12 @@
 # create VCN
-terraform {
-  required_providers {
-    oci = {
-      source  = "oracle/oci"
-      version = "~> 4.72.0"
-    }
-  }
-}
+# terraform {
+#   required_providers {
+#     oci = {
+#       source  = "oracle/oci"
+#       version = "~> 4.109.0"
+#     }
+#   }
+# }
 
 module "vcn" {
   source  = "oracle-terraform-modules/vcn/oci"
@@ -22,6 +22,8 @@ module "vcn" {
   vcn_name      = "k8s-vcn"
   vcn_dns_label = "k8svcn"
   vcn_cidrs     = ["10.0.0.0/16"]
+
+  enable_ipv6 = true
 
   create_internet_gateway = true
   create_nat_gateway      = true

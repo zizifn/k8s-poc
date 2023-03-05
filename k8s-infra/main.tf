@@ -15,7 +15,7 @@ terraform {
   required_providers {
     oci = {
       source  = "oracle/oci"
-      version = "~> 4.72.0"
+      version = "~> 4.109.0"
     }
     # kubernetes = {
     #   source  = "hashicorp/kubernetes"
@@ -27,7 +27,7 @@ terraform {
       version = ">= 2.5.1"
     }
     http = {
-      source = "hashicorp/http"
+      source  = "hashicorp/http"
       version = "2.1.0"
     }
   }
@@ -82,7 +82,7 @@ locals {
   cluster_id = module.k8s-cluster.id
   test       = pathexpand("~/${path.module}/main.tf")
   command_map = sensitive(substr(local.test, 0, 1) == "/" ? {
-    command     = "oci ce cluster create-kubeconfig --cluster-id ${local.cluster_id} --file ../oci_kube_config.temp --token-version 2.0.0  --kube-endpoint PUBLIC_ENDPOINT",
+    command = "oci ce cluster create-kubeconfig --cluster-id ${local.cluster_id} --file ../oci_kube_config.temp --token-version 2.0.0  --kube-endpoint PUBLIC_ENDPOINT",
     # command = "ls -al && pwd"
     intrepreter = null
     } : {
@@ -95,7 +95,7 @@ locals {
 resource "null_resource" "setup_kube_config_from_oci" {
   provisioner "local-exec" {
     command     = local.command_map.command
-    interpreter = local.command_map.intrepreter !=null ? [local.command_map.intrepreter] : null
+    interpreter = local.command_map.intrepreter != null ? [local.command_map.intrepreter] : null
   }
   triggers = {
     always_run = timestamp()
