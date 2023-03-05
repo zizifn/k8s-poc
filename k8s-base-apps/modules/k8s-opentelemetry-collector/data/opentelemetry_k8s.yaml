@@ -1,16 +1,17 @@
 receivers:
-  filelog:
-    include:
-      - /var/log/pods/default*/*/*.log
-    exclude:
-      # Exclude logs from all containers named otel-collector
-      - /var/log/pods/*/*otel*/*.log
-      - /var/log/pods/*/*agent*/*.log
-      - /var/log/pods/*elastic*/*/*.log
-    start_at: beginning
-    include_file_path: true
-    include_file_name: false
-    operators:
+  # file log will take disk, disable for now
+  # filelog:
+  #   include:
+  #     - /var/log/pods/default*/*/*.log
+  #   exclude:
+  #     # Exclude logs from all containers named otel-collector
+  #     - /var/log/pods/*/*otel*/*.log
+  #     - /var/log/pods/*/*agent*/*.log
+  #     - /var/log/pods/*elastic*/*/*.log
+  #   start_at: beginning
+  #   include_file_path: true
+  #   include_file_name: false
+  #   operators:
       # Find out which format is used by kubernetes
       - type: router
         id: get-format

@@ -36,6 +36,7 @@ terraform {
 }
 # cau be use this no need .oci/config
 provider "oci" {
+  auth         = "APIKey"
   tenancy_ocid = var.tenancy_ocid
   user_ocid    = var.user_ocid
   private_key  = try(base64decode(var.private_key), null)
