@@ -4,7 +4,7 @@
 
 相关架构文档， https://github.com/zizifn/thoughts/blob/master/%E6%9E%B6%E6%9E%84/intro.md
 
-示例 app https://k8s.zizi.press/gtw/hello
+示例 app https://k8s.121107.xyz/gtw/hello
 
 ## 基本信息
 
