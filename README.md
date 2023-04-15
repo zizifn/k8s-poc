@@ -27,7 +27,7 @@
 | k8s-cert-manager     | 利用 lets encrypt 实现TLS证书的自动签发 |
 | k8s-ingress-nginx     | ingress nginx |
 | k8s-auth-token     | 基于rbac 创建 kubernetes account |
-| k8s-eck     | elastic stack https://k8s-kibana.zizi.press/|
+| k8s-eck     | elastic stack ~~https://k8s-kibana.zizi.press/~~ (硬盘消耗太大，停掉了。)|
 | k8s-opentelemetry-collector     | opentelemetry for apm/metrics/log |
 
 > k8s-eck 没有使用 terraform，terraform manifest 对于elastic 有点问题。
