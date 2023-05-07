@@ -159,7 +159,7 @@ resource "oci_core_subnet" "k8s_vcn_api_private_subnet" {
   security_list_ids         = [oci_core_security_list.private_k8s_subnet_sl.id]
   display_name              = "k8s-api-private-subnet"
   dns_label                 = "apiprivate"
-  prohibit_internet_ingress = true
+  prohibit_internet_ingress = true # no internet access, only can initiate internet via nat gateway which is set in route table
 }
 
 resource "oci_core_subnet" "k8s_vcn_lb_public_subnet" {

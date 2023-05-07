@@ -3,7 +3,7 @@ resource "oci_core_network_security_group" "nsg_private_internet_access" {
   compartment_id = var.compartment_id
   vcn_id         = module.vcn.vcn_id
   display_name   = "nsg_private_internet_access"
-  freeform_tags = {"type"= "nsg"}
+  freeform_tags  = { "type" = "nsg" }
 }
 resource "oci_core_network_security_group_security_rule" "egress_oracle_network_security_group_security_rule" {
   #Required
@@ -11,10 +11,10 @@ resource "oci_core_network_security_group_security_rule" "egress_oracle_network_
   direction                 = "EGRESS"
   protocol                  = "all"
   #Optional
-  description = "Allow nodes to communicate with OKE to ensure correct start-up and continued functioning"
-  destination = "all-yny-services-in-oracle-services-network"
+  description      = "Allow nodes to communicate with OKE to ensure correct start-up and continued functioning"
+  destination      = "all-yny-services-in-oracle-services-network"
   destination_type = "SERVICE_CIDR_BLOCK"
-  stateless   = false
+  stateless        = false
 }
 
 resource "oci_core_network_security_group_security_rule" "egress_icmp_network_security_group_security_rule" {
@@ -23,11 +23,11 @@ resource "oci_core_network_security_group_security_rule" "egress_icmp_network_se
   direction                 = "EGRESS"
   protocol                  = "1" # icmp
   #Optional
-  description = "icmp"
+  description      = "icmp"
   destination      = "0.0.0.0/0"
-  destination_type  = "CIDR_BLOCK"
-  stateless   = false
-  icmp_options  {
+  destination_type = "CIDR_BLOCK"
+  stateless        = false
+  icmp_options {
     type = 3
     code = 4
   }
@@ -52,10 +52,10 @@ resource "oci_core_network_security_group_security_rule" "egress_80_network_secu
   direction                 = "EGRESS"
   protocol                  = "6"
   #Optional
-  description = "http 80"
-  destination = "0.0.0.0/0"
+  description      = "http 80"
+  destination      = "0.0.0.0/0"
   destination_type = "CIDR_BLOCK"
-  stateless   = false
+  stateless        = false
   tcp_options {
     destination_port_range {
       max = 80
@@ -70,10 +70,10 @@ resource "oci_core_network_security_group_security_rule" "egress_443_network_sec
   direction                 = "EGRESS"
   protocol                  = "6"
   #Optional
-  description = "http 443"
-  destination = "0.0.0.0/0"
+  description      = "http 443"
+  destination      = "0.0.0.0/0"
   destination_type = "CIDR_BLOCK"
-  stateless   = false
+  stateless        = false
   tcp_options {
     destination_port_range {
       max = 443
@@ -82,21 +82,41 @@ resource "oci_core_network_security_group_security_rule" "egress_443_network_sec
   }
 }
 
-resource "oci_core_network_security_group_security_rule" "egress_53_network_security_group_security_rule" {
+# allow udp in port 0-1000
+resource "oci_core_network_security_group_security_rule" "egress_udp_network_security_group_security_rule" {
+  #Required
+  network_security_group_id = oci_core_network_security_group.nsg_private_internet_access.id
+  direction                 = "EGRESS"
+  protocol                  = "17"
+  #Optional
+  description      = "udp port 0-1000"
+  destination      = "0.0.0.0/0"
+  destination_type = "CIDR_BLOCK"
+  stateless        = false
+  udp_options {
+    destination_port_range {
+      max = 1000
+      min = 1
+    }
+  }
+}
+
+# allow tcp in port 0-1000
+
+resource "oci_core_network_security_group_security_rule" "egress_tcp_network_security_group_security_rule" {
   #Required
   network_security_group_id = oci_core_network_security_group.nsg_private_internet_access.id
   direction                 = "EGRESS"
   protocol                  = "6"
   #Optional
-  description = "dns 53"
-  destination = "0.0.0.0/0"
+  description      = "tcp port 0-1000"
+  destination      = "0.0.0.0/0"
   destination_type = "CIDR_BLOCK"
-  stateless   = false
+  stateless        = false
   tcp_options {
     destination_port_range {
-      max = 53
-      min = 53
+      max = 1000
+      min = 1
     }
   }
 }
-
